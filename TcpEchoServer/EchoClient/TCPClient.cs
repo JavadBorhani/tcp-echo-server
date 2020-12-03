@@ -14,7 +14,8 @@ namespace EchoClient
     {
         private readonly IPEndPoint _destinationIP;
         private TcpClient _tcpClient;
-        private EchoStreamAdapter _client;
+        private NetStreamAdapter _client;
+        private int _clientId = 0; 
 
         public TCPClient(IPEndPoint ip)
         {
@@ -33,13 +34,20 @@ namespace EchoClient
             {
                 _tcpClient = new TcpClient();
                 await _tcpClient.ConnectAsync(_destinationIP.Address, _destinationIP.Port);
-                _client = new EchoStreamAdapter(_tcpClient);
+                _client = new NetStreamAdapter(_tcpClient , _clientId);
                 _client.StartRead();
+                _client.OnMessageReceived += OnMessageReceived;
             }
             catch(Exception e)
             {
+                _tcpClient.Close();
                 Logger.Error(e.Message);
             }
+        }
+
+        public void OnMessageReceived(string message)
+        {
+            Logger.Info(message);
         }
 
         public async Task WriteMessage(string message)

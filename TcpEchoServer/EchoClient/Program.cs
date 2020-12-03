@@ -8,24 +8,31 @@ namespace EchoClient
     {
         static void Main(string[] args)
         {
-            Thread thread = new Thread(async () =>
+            TCPClient client = null;
+            try
             {
-                var endPoint = new IPEndPoint(IPAddress.Loopback, 1111);
-                TCPClient client = new TCPClient(endPoint);
-                client.StartAsync();
-
-                
-                while(true)
+                Thread thread = new Thread(async () =>
                 {
-                    var input = Console.ReadLine();
-                    if (input == "!")
-                        break;
+                    var endPoint = new IPEndPoint(IPAddress.Loopback, 1111);
+                    client = new TCPClient(endPoint);
+                    client.StartAsync();
 
-                    for(int i = 0; i < 10; ++i)
+
+                    while (true)
+                    {
+                        var input = Console.ReadLine();
+                        if (input == "!")
+                            break;
+
                         client.WriteMessage(input);
-                }
-            });
-            thread.Start();
+                    }
+                });
+                thread.Start();
+            }
+            catch(Exception e)
+            {
+                client?.Dispose();
+            }
         }
     }
 }

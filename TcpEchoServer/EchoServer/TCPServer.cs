@@ -3,6 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -15,10 +16,11 @@ namespace EchoServer
     {
         private readonly IPEndPoint _serverIP;
         private readonly IPEndPoint _backboneIP;
-        private readonly ConcurrentDictionary<Guid, EchoStreamAdapter> _clients = new ConcurrentDictionary<Guid, EchoStreamAdapter>();
+        private readonly ConcurrentDictionary<int, NetStreamAdapter> _clients = new ConcurrentDictionary<int, NetStreamAdapter>();
 
         private TcpListener _listener;
         private TcpClient _backboneClient;
+        private int _clientId = 0;
 
         public TCPServer(IPEndPoint serverIP, IPEndPoint backboneIP)
         {
@@ -46,10 +48,28 @@ namespace EchoServer
 
         private async Task Accept(TcpClient client)
         {
-            EchoStreamAdapter clientHandler = new EchoStreamAdapter(client);
-            clientHandler.OnMessageReceived += (message) => Logger.Info(message);
-            _clients.TryAdd(Guid.NewGuid(), clientHandler);
+            await Task.Yield();
+            var newClientId = Interlocked.Increment(ref _clientId);
+            NetStreamAdapter clientHandler = new NetStreamAdapter(client, newClientId);
+            clientHandler.OnMessageReceived += OnMessageReceived;
+            clientHandler.OnDisconnected += OnClientDisconnect;
+            _clients.TryAdd(newClientId, clientHandler);
             clientHandler.StartRead();
+            Logger.Info("Client with clientId {0} connected", newClientId);
+        }
+
+        private void OnMessageReceived(string message)
+        {
+            foreach (var client in _clients.Values)
+                client.WriteAsync(message);
+
+            Logger.Info(message);
+        }
+
+        private void OnClientDisconnect(int clientId)
+        {
+            _clients.TryRemove(clientId, out var streamAdapter);
+            Logger.Info("Client with clientId {0} disconnected", clientId);
         }
 
         public void Stop()

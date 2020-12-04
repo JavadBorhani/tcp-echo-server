@@ -31,8 +31,11 @@ namespace Common.NetStream
         private async Task<int> ReadHeaderAsync()
         {
             byte[] buffer = await ReadBufferAsync(HeaderSize);
-            int messageSize = BitConverter.ToInt32(buffer);
 
+            if (buffer.Length == 0)
+                return 0;
+
+            int messageSize = BitConverter.ToInt32(buffer);
             return messageSize;
         }
 
@@ -47,6 +50,10 @@ namespace Common.NetStream
         internal async Task<string> ReadMessage()
         {
             int messageSize = await ReadHeaderAsync();
+
+            if (messageSize == 0)
+                return null;
+
             string message = await ReadMessageAsync(messageSize);
             return message;
         }

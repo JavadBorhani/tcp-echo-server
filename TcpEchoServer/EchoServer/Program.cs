@@ -17,7 +17,8 @@ namespace EchoServer
                 try
                 {
                     IPEndPoint serverIp = new IPEndPoint(IPAddress.Parse("0.0.0.0"), 1111);
-                    server = new TCPServer(serverIp, serverIp);
+                    IPEndPoint backbone = new IPEndPoint(IPAddress.Loopback, 50000);
+                    server = new TCPServer(serverIp, backbone);
                     await server.StartAsync();
 
                     Console.WriteLine("Server start on {0} address", serverIp.ToString());

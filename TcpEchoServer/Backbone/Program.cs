@@ -17,16 +17,22 @@ namespace Backbone
     {
         static void Main(string[] args)
         {
-            var arguments = Utils.ReadCommandLineArguments<BackboneArguments>(args);
+            //BackboneArguments arguments = Utils.ReadCommandLineArguments<BackboneArguments>(args);
 
-            Console.WriteLine("Server is running...");
+            
 
-            Thread t = new Thread(() =>
+            Thread thread = new Thread(() =>
             {
-                BackboneServer server = new BackboneServer(arguments.BackboneIP);
-                server.Start();
+                IPEndPoint backboneIp = new IPEndPoint(IPAddress.Parse("0.0.0.0"), 50000);
+
+                BackboneServer server = new BackboneServer(backboneIp);
+                server.Start().NoAwait();
+
+                Console.WriteLine("Backbone is running on {0} ...",  backboneIp.ToString());
+                Console.ReadLine();
             });
-            t.Start();
+
+            thread.Start();
         }
     }
 }

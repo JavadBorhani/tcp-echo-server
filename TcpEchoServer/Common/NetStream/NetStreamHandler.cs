@@ -36,6 +36,10 @@ namespace Common.NetStream
                 while (_disconnected == false)
                 {
                     string message = await _streamReader.ReadMessage();
+
+                    if (message == null)
+                        break;  
+
                     OnMessageReceived?.Invoke(message);
                 }
             }

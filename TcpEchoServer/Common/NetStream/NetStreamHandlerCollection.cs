@@ -33,5 +33,11 @@ namespace Common.NetStream
             using (await _asyncReaderWriterLock.WriterLockAsync())
                 _collection.Remove(id, out var streamHandler);
         }
+
+        public async Task ClearAll()
+        {
+            using (await _asyncReaderWriterLock.WriterLockAsync())
+                _collection.Clear();
+        }
     }
 }

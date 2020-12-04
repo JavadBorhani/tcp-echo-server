@@ -1,4 +1,5 @@
 ﻿using Common;
+using Common.Utility;
 using System;
 using System.Net;
 using System.Threading;
@@ -24,8 +25,12 @@ namespace EchoServer
                 }
                 catch (Exception exception)
                 {
-                    server?.Stop();
+                    
                     Logger.Error(exception.Message);
+                }
+                finally
+                {
+                    server?.Stop();
                 }
             });
             thread.Start();

@@ -3,11 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace Common
+namespace Common.NetStream
 {
-    public class NetStreamWriter
+    internal class NetStreamWriter
     {
         private readonly NetworkStream _stream;
         private readonly AsyncLock _asyncLock = new AsyncLock();
@@ -17,7 +18,7 @@ namespace Common
             _stream = stream;
         }
 
-        public async Task WriteAsync(string message)
+        internal async Task WriteAsync(string message, CancellationToken cancellationToken = default(CancellationToken))
         {
             byte[] messageInByte = Encoding.ASCII.GetBytes(message);
             int messageSize = messageInByte.Length;
@@ -31,7 +32,7 @@ namespace Common
             var messageInArray = wholeMessage.ToArray();
 
             using (await _asyncLock.LockAsync())
-                await _stream.WriteAsync(messageInArray, 0, messageInArray.Length);
+                await _stream.WriteAsync(messageInArray, 0, messageInArray.Length, cancellationToken);
         }
     }
 }

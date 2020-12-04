@@ -1,11 +1,8 @@
-﻿using Common;
+﻿using Common.NetStream;
+using Common.Utility;
 using System;
-using System.Buffers;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace EchoClient
@@ -14,7 +11,7 @@ namespace EchoClient
     {
         private readonly IPEndPoint _destinationIP;
         private TcpClient _tcpClient;
-        private NetStreamAdapter _client;
+        private NetStreamHandler _client;
         private int _clientId = 0; 
 
         public TCPClient(IPEndPoint ip)
@@ -24,7 +21,7 @@ namespace EchoClient
 
         public void Dispose()
         {
-            _client.Dispose();
+            _client.Disconnect();
             _tcpClient.Close();
         }
 
@@ -34,8 +31,9 @@ namespace EchoClient
             {
                 _tcpClient = new TcpClient();
                 await _tcpClient.ConnectAsync(_destinationIP.Address, _destinationIP.Port);
-                _client = new NetStreamAdapter(_tcpClient , _clientId);
-                _client.StartRead();
+
+                _client = new NetStreamHandler(_tcpClient , _clientId);
+                _client.StartReadingStream();
                 _client.OnMessageReceived += OnMessageReceived;
             }
             catch(Exception e)

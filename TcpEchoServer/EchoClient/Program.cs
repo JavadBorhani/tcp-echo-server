@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Common.Utility;
+using System;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace EchoClient
 {
@@ -11,11 +13,11 @@ namespace EchoClient
             TCPClient client = null;
             try
             {
-                Thread thread = new Thread(async () =>
+                Thread thread = new Thread(() =>
                 {
                     var endPoint = new IPEndPoint(IPAddress.Loopback, 1111);
                     client = new TCPClient(endPoint);
-                    client.StartAsync();
+                    Task.Run(() => client.StartAsync());
 
 
                     while (true)
@@ -24,14 +26,15 @@ namespace EchoClient
                         if (input == "!")
                             break;
 
-                        client.WriteMessage(input);
+                        Task.Run(() => client.WriteMessage(input));
                     }
                 });
                 thread.Start();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 client?.Dispose();
+                Logger.Error(e.StackTrace);
             }
         }
     }

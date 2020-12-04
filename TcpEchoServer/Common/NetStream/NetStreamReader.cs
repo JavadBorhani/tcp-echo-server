@@ -3,17 +3,16 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Common
+namespace Common.NetStream
 {
-    public class NetStreamReader
+    internal class NetStreamReader
     {
         private readonly NetworkStream _stream;
-        private readonly int _headerSize;
+        private const int HeaderSize = 4;
 
-        public NetStreamReader(NetworkStream stream, int headerSize)
+        internal NetStreamReader(NetworkStream stream)
         {
             _stream = stream;
-            _headerSize = headerSize;
         }
 
         private async Task<byte[]> ReadBufferAsync(int bufferSize)
@@ -31,7 +30,7 @@ namespace Common
 
         private async Task<int> ReadHeaderAsync()
         {
-            byte[] buffer = await ReadBufferAsync(_headerSize);
+            byte[] buffer = await ReadBufferAsync(HeaderSize);
             int messageSize = BitConverter.ToInt32(buffer);
 
             return messageSize;
@@ -45,7 +44,7 @@ namespace Common
             return message;
         }
 
-        public async Task<string> ReadMessage()
+        internal async Task<string> ReadMessage()
         {
             int messageSize = await ReadHeaderAsync();
             string message = await ReadMessageAsync(messageSize);

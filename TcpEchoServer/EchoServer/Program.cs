@@ -11,16 +11,17 @@ namespace EchoServer
     {
         static void Main(string[] args)
         {
-            Thread thread = new Thread(() =>
+            Thread thread = new Thread(async () =>
             {
                 TCPServer server = null;
                 try
                 {
                     IPEndPoint serverIp = new IPEndPoint(IPAddress.Parse("0.0.0.0"), 1111);
                     server = new TCPServer(serverIp, serverIp);
-                    server.StartAsync();
+                    await server.StartAsync();
 
-                    Console.WriteLine("Server start on {0} address \nPress any key to exit...", serverIp.ToString());
+                    Console.WriteLine("Server start on {0} address", serverIp.ToString());
+                    Console.WriteLine("Press any key to exit...");
                     Console.ReadLine();
                 }
                 catch (Exception exception)

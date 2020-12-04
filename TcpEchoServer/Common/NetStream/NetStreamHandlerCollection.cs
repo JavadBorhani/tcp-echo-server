@@ -22,15 +22,6 @@ namespace Common.NetStream
                 return _streams.Values.ToList();
         }
 
-        public async Task<NetStreamHandler> Get(int id)
-        {
-            using (await _asyncReaderWriterLock.ReaderLockAsync())
-            {
-                _streams.TryGetValue(id, out var netStreamHandler);
-                return netStreamHandler;
-            }
-        }
-
         public async Task Add(int id, NetStreamHandler streamHandler)
         {
             using (await _asyncReaderWriterLock.WriterLockAsync())

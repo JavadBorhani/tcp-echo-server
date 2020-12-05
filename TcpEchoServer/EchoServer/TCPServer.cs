@@ -27,13 +27,13 @@ namespace EchoServer
             _clientId = 0;
         }
 
-        public async Task StartAsync()
+        public void Start()
         {
             ConnectToBackbone();
-            ConfigureServer().NoAwait();
+            InitializeServer().NoAwait();
         }
 
-        public void ConnectToBackbone()
+        private void ConnectToBackbone()
         {
             try
             {
@@ -43,7 +43,7 @@ namespace EchoServer
                 _backbone = new NetStreamHandler(client, 0);
                 _backbone.OnMessageReceived += OnBackboneMessageReceived;
                 _backbone.OnDisconnected += OnDisconnectedFromBackbone;
-                _backbone.StartReadingStream();
+                _backbone.StartListenStream();
 
             }
             catch (SocketException socketException)
@@ -59,7 +59,7 @@ namespace EchoServer
             }
         }
 
-        public async Task ConfigureServer()
+        public async Task InitializeServer()
         {
             _server = new TcpListener(_serverIP);
             try
@@ -105,7 +105,6 @@ namespace EchoServer
 
         private async Task Accept(TcpClient client)
         {
-            await Task.Yield();
             try
             {
                 int newClientId = Interlocked.Increment(ref _clientId);
@@ -113,7 +112,7 @@ namespace EchoServer
                 NetStreamHandler clientHandler = new NetStreamHandler(client, newClientId);
                 clientHandler.OnMessageReceived += OnClientMessageReceived;
                 clientHandler.OnDisconnected += OnClientDisconnect;
-                clientHandler.StartReadingStream();
+                clientHandler.StartListenStream();
 
                 Logger.Info("Client with clientId {0} connected", newClientId);
                 await _clients.Add(newClientId, clientHandler);

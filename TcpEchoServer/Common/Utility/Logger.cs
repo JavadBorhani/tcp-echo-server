@@ -23,15 +23,15 @@ namespace Common.Utility
 
         public static void Error(string message, params object[] args)
         {
-            if (LogLevel == LogLevels.Info || LogLevel == LogLevels.Error)
+            if (LogLevel == LogLevels.Error || LogLevel == LogLevels.Info)
                 Console.WriteLine(errorPrefix + message, args);
         }
 
         public static void ForceLog(string message, params object[] args)
         {
-            if (LogLevel == LogLevels.Info  || 
-                LogLevel == LogLevels.Error || 
-                LogLevel == LogLevels.ForceLog)
+            if (LogLevel == LogLevels.ForceLog  || 
+                LogLevel == LogLevels.Error     || 
+                LogLevel == LogLevels.Info)
                 Console.WriteLine(message, args);
         }
 

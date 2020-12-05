@@ -6,32 +6,47 @@ using System.Threading;
 
 namespace Backbone
 {
-
-    public class BackboneArguments
+    class BackboneArguments
     {
-        [Option()]
-        public IPEndPoint BackboneIP { get; set; }
+        [Option('b', "backbone", Required = true, HelpText = "backbone ip and port address")]
+        public string Server { get; set; }
+
+        [Option('l', "logLevel", Required = false, HelpText = "server log level")]
+        public Logger.LogLevels LogLevel { get; set; } = Logger.LogLevels.ForceLog;
     }
 
     class Program
     {
         static void Main(string[] args)
         {
-            //BackboneArguments arguments = Utils.ReadCommandLineArguments<BackboneArguments>(args);
-
-            
+            BackboneArguments backboneArgs = Utils.ReadArguments<BackboneArguments>(args);
 
             Thread thread = new Thread(() =>
             {
-                IPEndPoint backboneIp = new IPEndPoint(IPAddress.Parse("0.0.0.0"), 50000);
+                BackboneServer server = null;
+                try
+                {
+                    Logger.LogLevel = backboneArgs.LogLevel;
+                    IPEndPoint backboneIp = Utils.ParseIPAddress(backboneArgs.Server);
 
-                BackboneServer server = new BackboneServer(backboneIp);
-                server.Start().NoAwait();
+                    server = new BackboneServer(backboneIp);
+                    server.Start();
 
-                Console.WriteLine("Backbone is running on {0} ...",  backboneIp.ToString());
-                Console.ReadLine();
+                    Logger.ForceLog("Backbone started on {0} address", backboneIp.ToString());
+                    Logger.ForceLog("Press any key to exit...");
+
+                    Console.ReadLine();
+                }
+                catch(Exception ex)
+                {
+                    Logger.Error(ex.Message);
+                    Console.ReadLine();
+                }
+                finally
+                {
+                    server?.Stop();
+                }
             });
-
             thread.Start();
         }
     }

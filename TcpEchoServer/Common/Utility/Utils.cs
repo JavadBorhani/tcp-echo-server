@@ -18,7 +18,7 @@ namespace Common.Utility
         }
 
 
-        public static IPEndPoint ReadIPAddress(string stringAddress)
+        public static IPEndPoint ParseIPAddress(string stringAddress)
         {
             string[] ipAdressAndPort = stringAddress.Trim().Split(":");
             string ip = ipAdressAndPort[0];
@@ -27,7 +27,7 @@ namespace Common.Utility
             return endPoint;
         }
 
-        public static List<IPEndPoint> GenerateIPAddressWithMultiplePorts(string ipAddressWithPorts)
+        public static List<IPEndPoint> ParseIPAddressWithMultiplePorts(string ipAddressWithPorts)
         {
             string[] ipAdressesAndPorts = ipAddressWithPorts.Trim().Split(":");
             var ipAddress = IPAddress.Parse(ipAdressesAndPorts[0]);

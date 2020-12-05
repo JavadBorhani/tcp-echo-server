@@ -16,7 +16,7 @@ namespace Common.NetStream
         private readonly NetStreamWriter _streamWriter;
 
         private bool _disconnected = false;
-        private readonly CancellationTokenSource _streamSource;
+        private readonly CancellationTokenSource _cancelSource;
         private readonly int _clientId; 
 
         public NetStreamHandler(TcpClient tcpClient, int clientId)
@@ -24,7 +24,7 @@ namespace Common.NetStream
             _tcpClient = tcpClient;
             _clientId = clientId;
             var stream = _tcpClient.GetStream();
-            _streamSource = new CancellationTokenSource();
+            _cancelSource = new CancellationTokenSource();
             _streamReader = new NetStreamReader(stream);
             _streamWriter = new NetStreamWriter(stream);
         }
@@ -58,22 +58,22 @@ namespace Common.NetStream
             if (_disconnected == false)
             {
                 _disconnected = true;
-                _streamSource.Cancel();
+                _cancelSource.Cancel();
                 _tcpClient.Close();
-                OnDisconnected.Invoke(_clientId);
+                OnDisconnected?.Invoke(_clientId);
             }
         }
 
-        public void StartReadingStream()
+        public void StartListenStream()
         {
-            Task.Run(async () => await ReadingFromStreamAsync(), _streamSource.Token);
+            Task.Run(async () => await ReadingFromStreamAsync(), _cancelSource.Token);
         }
 
         public async Task WriteAsync(string message)
         {
             try
             {
-                await _streamWriter.WriteAsync(message, _streamSource.Token);
+                await _streamWriter.WriteAsync(message, _cancelSource.Token);
             }
             catch (Exception exception)
             {

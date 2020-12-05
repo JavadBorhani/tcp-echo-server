@@ -50,7 +50,6 @@ namespace Common.NetStream
         internal async Task<string> ReadMessage()
         {
             int messageSize = await ReadHeaderAsync();
-
             if (messageSize == 0)
                 return null;
 

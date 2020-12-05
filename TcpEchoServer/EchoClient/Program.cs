@@ -19,7 +19,6 @@ namespace EchoClient
                     client = new TCPClient(endPoint);
                     Task.Run(() => client.StartAsync());
 
-
                     while (true)
                     {
                         var input = Console.ReadLine();

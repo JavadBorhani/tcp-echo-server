@@ -33,7 +33,7 @@ namespace EchoClient
                 await _tcpClient.ConnectAsync(_destinationIP.Address, _destinationIP.Port);
 
                 _client = new NetStreamHandler(_tcpClient , _clientId);
-                _client.StartReadingStream();
+                _client.StartListenStream();
                 _client.OnMessageReceived += OnMessageReceived;
             }
             catch(Exception e)

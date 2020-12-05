@@ -24,10 +24,14 @@ namespace Backbone
             _clientId = 0;
         }
 
-        public async Task Start()
+        public void Start()
+        {
+            InitializeServer().NoAwait();
+        }
+
+        public async Task InitializeServer()
         {
             _backbone = new TcpListener(_backboneIP);
-            
             try
             {
                 _backbone.Start();
@@ -37,11 +41,11 @@ namespace Backbone
                     Accept(newClient).NoAwait();
                 }
             }
-            catch(SocketException socketException)
+            catch (SocketException socketException)
             {
                 Logger.Error("Socket exception {0}", socketException.Message);
             }
-            catch(Exception exception)
+            catch (Exception exception)
             {
                 Logger.Error("exception {0}", exception.Message);
             }
@@ -53,7 +57,6 @@ namespace Backbone
 
         private async Task Accept(TcpClient client)
         {
-            await Task.Yield();
             try
             {
                 int newClientId = Interlocked.Increment(ref _clientId);
@@ -61,7 +64,7 @@ namespace Backbone
                 NetStreamHandler clientHandler = new NetStreamHandler(client, newClientId);
                 clientHandler.OnMessageReceived += OnTcpServerMessageReceived;
                 clientHandler.OnDisconnected += OnClientDisconnect;
-                clientHandler.StartReadingStream();
+                clientHandler.StartListenStream();
 
                 Logger.Info("Server with id {0} connected", newClientId);
                 await _clients.Add(newClientId, clientHandler);

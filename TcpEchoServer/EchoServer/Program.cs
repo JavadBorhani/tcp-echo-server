@@ -6,9 +6,9 @@ using System.Threading;
 
 namespace EchoServer
 {
-    public class ServerArguments
+    class ServerArguments
     {
-        [Option('s', "server", Required = true, HelpText = "this server ip and port address")]
+        [Option('s', "server", Required = true, HelpText = "server ip and port address")]
         public string Server { get; set; }
 
         [Option('b', "backbone", Required = true, HelpText = "backbone ip and port address")]
@@ -23,24 +23,23 @@ namespace EchoServer
     {
         static void Main(string[] args)
         {
-            //args = new string[] { "-s 0.0.0.0:1111", "-b 127.0.0.1:2222", "-l Error" };
-            
+
             ServerArguments serverArgs = Utils.ReadArguments<ServerArguments>(args);
 
-            Thread thread = new Thread(async () =>
+            Thread thread = new Thread(() =>
             {
                 TCPServer server = null;
                 try
                 {
                     Logger.LogLevel = serverArgs.LogLevel;
 
-                    IPEndPoint serverIp = Utils.ReadIPAddress(serverArgs.Server);
-                    IPEndPoint backbone = Utils.ReadIPAddress(serverArgs.BackboneServer);
+                    IPEndPoint serverIp   = Utils.ParseIPAddress(serverArgs.Server);
+                    IPEndPoint backboneIp = Utils.ParseIPAddress(serverArgs.BackboneServer);
 
-                    server = new TCPServer(serverIp, backbone);
-                    await server.StartAsync();
+                    server = new TCPServer(serverIp, backboneIp);
+                    server.Start();
 
-                    Logger.ForceLog("Server start on {0} address", serverIp.ToString());
+                    Logger.ForceLog("Server started on {0} address", serverIp.ToString());
                     Logger.ForceLog("Press any key to exit...");
 
                     Console.ReadLine();

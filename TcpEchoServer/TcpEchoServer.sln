@@ -4,12 +4,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 15.0.28307.1300
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EchoServer", "EchoServer\EchoServer.csproj", "{49466DEB-9009-4312-9729-2F6A62B300D4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{78A32D97-133A-47B3-BFCE-D668CEB95320} = {78A32D97-133A-47B3-BFCE-D668CEB95320}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EchoClient", "EchoClient\EchoClient.csproj", "{37F2BE1F-FA6F-44B8-A46F-3F140D8DEDD9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "Common\Common.csproj", "{9A197FB2-3212-446F-9033-854A683602F2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Backbone", "Backbone\Backbone.csproj", "{78A32D97-133A-47B3-BFCE-D668CEB95320}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backbone", "Backbone\Backbone.csproj", "{78A32D97-133A-47B3-BFCE-D668CEB95320}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

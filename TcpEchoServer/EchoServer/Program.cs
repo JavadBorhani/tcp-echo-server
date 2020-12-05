@@ -15,7 +15,7 @@ namespace EchoServer
         public string BackboneServer { get; set; }
 
         [Option('l', "logLevel", Required = false, HelpText = "server log level")]
-        public Logger.LogLevels LogLevel { get; set; } = Logger.LogLevels.Info;
+        public Logger.LogLevels LogLevel { get; set; } = Logger.LogLevels.ForceLog;
 
     }
 

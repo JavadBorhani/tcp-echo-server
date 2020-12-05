@@ -15,7 +15,7 @@ namespace EchoClient
                 TCPClient client = null;
                 try
                 {
-                    var endPoint = new IPEndPoint(IPAddress.Loopback, 1111);
+                    var endPoint = new IPEndPoint(IPAddress.Loopback, 50001);
                     client = new TCPClient(endPoint);
                     await client.StartAsync();
 
@@ -32,9 +32,9 @@ namespace EchoClient
                     Logger.ForceLog("sending requests...");
 
                     string echo = "echo";
-                    int numOfMessages = 10000;
+                    int numOfMessages = 1000000;
                     for (int i = 0; i < numOfMessages; ++i)
-                        await client.WriteMessage(echo);
+                        client.WriteMessage(echo).NoAwait();
 
                     Logger.ForceLog($"{numOfMessages} sent");
                     while (true)

@@ -18,18 +18,18 @@ namespace Common.Utility
         }
 
 
-        public static IPEndPoint ReadIPAddress(string ipEndPoint)
+        public static IPEndPoint ReadIPAddress(string stringAddress)
         {
-            string[] ipAdressAndPort = ipEndPoint.Split(":");
-            string ip = ipAdressAndPort[0].Trim();
-            int port = int.Parse(ipAdressAndPort[1].Trim());
+            string[] ipAdressAndPort = stringAddress.Trim().Split(":");
+            string ip = ipAdressAndPort[0];
+            int port = int.Parse(ipAdressAndPort[1]);
             IPEndPoint endPoint = new IPEndPoint(IPAddress.Parse(ip), port);
             return endPoint;
         }
 
         public static List<IPEndPoint> GenerateIPAddressWithMultiplePorts(string ipAddressWithPorts)
         {
-            string[] ipAdressesAndPorts = ipAddressWithPorts.Split(":");
+            string[] ipAdressesAndPorts = ipAddressWithPorts.Trim().Split(":");
             var ipAddress = IPAddress.Parse(ipAdressesAndPorts[0]);
 
             List<IPEndPoint> ipEndPoints = new List<IPEndPoint>(ipAdressesAndPorts.Length - 1);

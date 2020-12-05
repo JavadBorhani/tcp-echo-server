@@ -1,7 +1,8 @@
 {
   "profiles": {
     "EchoServer": {
-      "commandName": "Executable"
+      "commandName": "Project",
+      "commandLineArgs": "-b 127.0.0.1:50000 -s 0.0.0.0:50010 -l Info"
     }
   }
 }

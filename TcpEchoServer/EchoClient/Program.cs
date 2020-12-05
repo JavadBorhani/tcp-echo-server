@@ -1,4 +1,5 @@
-﻿using Common.Utility;
+﻿using CommandLine;
+using Common.Utility;
 using System;
 using System.Net;
 using System.Threading;
@@ -6,33 +7,38 @@ using System.Threading.Tasks;
 
 namespace EchoClient
 {
+
+    class ClientArguments
+    {
+        [Option('s', "server", Required = true, HelpText = "server endpoint to connect")]
+        public string Server { get; set; }
+
+        [Option('l', "logLevel", Required = false, HelpText = "server log level")]
+        public Logger.LogLevels LogLevel { get; set; } = Logger.LogLevels.ForceLog;
+    }
+
+
     class Program
     {
         static void Main(string[] args)
         {
+            var clientArgs = Utils.ReadArguments<ClientArguments>(args);
+
             Thread thread = new Thread(async () =>
             {
                 TCPClient client = null;
                 try
                 {
-                    var endPoint = new IPEndPoint(IPAddress.Loopback, 50001);
+                    IPEndPoint endPoint = Utils.ParseIPAddress(clientArgs.Server);
                     client = new TCPClient(endPoint);
                     await client.StartAsync();
-
-                    //while (true)
-                    //{
-                    //    var input = Console.ReadLine();
-                    //    if (input == "!")
-                    //        break;
-
-                    //    
-                    //}
+                    
                     Logger.ForceLog("waiting 3 seconds");
-                    Thread.Sleep(3000);
+                    await Task.Delay(10000);
                     Logger.ForceLog("sending requests...");
 
                     string echo = "echo";
-                    int numOfMessages = 1000000;
+                    int numOfMessages = 10000;
                     for (int i = 0; i < numOfMessages; ++i)
                         client.WriteMessage(echo).NoAwait();
 
@@ -42,6 +48,7 @@ namespace EchoClient
                         await Task.Delay(1000);
                         Logger.ForceLog("received messages : {0}", client.TotalReceivedMessages);
                     }
+                    
                 }
                 catch(Exception e)
                 {
@@ -50,7 +57,6 @@ namespace EchoClient
                 }
             });
             thread.Start();
-            Console.WriteLine("thread finished");
             Console.ReadLine();
         }
     }

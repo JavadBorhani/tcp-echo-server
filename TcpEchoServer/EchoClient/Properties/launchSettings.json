@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "EchoClient": {
+      "commandName": "Project",
+      "commandLineArgs": "-s 127.0.0.1:50010"
+    }
+  }
+}

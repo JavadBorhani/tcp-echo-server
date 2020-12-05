@@ -30,7 +30,7 @@ namespace EchoServer
         public async Task StartAsync()
         {
             ConnectToBackbone();
-            StartServer().NoAwait();
+            ConfigureServer().NoAwait();
         }
 
         public void ConnectToBackbone()
@@ -59,7 +59,7 @@ namespace EchoServer
             }
         }
 
-        public async Task StartServer()
+        public async Task ConfigureServer()
         {
             _server = new TcpListener(_serverIP);
             try
@@ -136,7 +136,6 @@ namespace EchoServer
 
         private void OnDisconnectedFromBackbone(int id)
         {
-            //disconnect management can be handled here
             Logger.Error("Disconnected from backbone {0}", id);
         }
 

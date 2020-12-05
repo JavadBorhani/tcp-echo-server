@@ -12,13 +12,14 @@ namespace Backbone
         public string Server { get; set; }
 
         [Option('l', "logLevel", Required = false, HelpText = "server log level")]
-        public Logger.LogLevels LogLevel { get; set; } = Logger.LogLevels.ForceLog;
+        public Logger.LogLevels LogLevel { get; set; } = Logger.LogLevels.Info;
     }
 
     class Program
     {
         static void Main(string[] args)
         {
+
             BackboneArguments backboneArgs = Utils.ReadArguments<BackboneArguments>(args);
 
             Thread thread = new Thread(() =>
@@ -37,7 +38,7 @@ namespace Backbone
 
                     Console.ReadLine();
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Logger.Error(ex.Message);
                     Console.ReadLine();

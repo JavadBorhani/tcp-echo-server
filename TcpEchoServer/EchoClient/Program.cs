@@ -10,31 +10,48 @@ namespace EchoClient
     {
         static void Main(string[] args)
         {
-            TCPClient client = null;
-            try
+            Thread thread = new Thread(async () =>
             {
-                Thread thread = new Thread(() =>
+                TCPClient client = null;
+                try
                 {
                     var endPoint = new IPEndPoint(IPAddress.Loopback, 1111);
                     client = new TCPClient(endPoint);
-                    Task.Run(() => client.StartAsync());
+                    await client.StartAsync();
 
+                    //while (true)
+                    //{
+                    //    var input = Console.ReadLine();
+                    //    if (input == "!")
+                    //        break;
+
+                    //    
+                    //}
+                    Logger.ForceLog("waiting 3 seconds");
+                    Thread.Sleep(3000);
+                    Logger.ForceLog("sending requests...");
+
+                    string echo = "echo";
+                    int numOfMessages = 10000;
+                    for (int i = 0; i < numOfMessages; ++i)
+                        await client.WriteMessage(echo);
+
+                    Logger.ForceLog($"{numOfMessages} sent");
                     while (true)
                     {
-                        var input = Console.ReadLine();
-                        if (input == "!")
-                            break;
-
-                        Task.Run(() => client.WriteMessage(input));
+                        await Task.Delay(1000);
+                        Logger.ForceLog("received messages : {0}", client.TotalReceivedMessages);
                     }
-                });
-                thread.Start();
-            }
-            catch (Exception e)
-            {
-                client?.Dispose();
-                Logger.Error(e.StackTrace);
-            }
+                }
+                catch(Exception e)
+                {
+                    client?.Dispose();
+                    Logger.Error(e.StackTrace);
+                }
+            });
+            thread.Start();
+            Console.WriteLine("thread finished");
+            Console.ReadLine();
         }
     }
 }

@@ -15,7 +15,7 @@ namespace EchoServer
         public string BackboneServer { get; set; }
 
         [Option('l', "logLevel", Required = false, HelpText = "server log level")]
-        public Logger.LogLevels LogLevel { get; set; } = Logger.LogLevels.ForceLog;
+        public Logger.LogLevels LogLevel { get; set; } = Logger.LogLevels.Info;
 
     }
 
@@ -23,7 +23,6 @@ namespace EchoServer
     {
         static void Main(string[] args)
         {
-
             ServerArguments serverArgs = Utils.ReadArguments<ServerArguments>(args);
 
             Thread thread = new Thread(() =>
@@ -33,7 +32,7 @@ namespace EchoServer
                 {
                     Logger.LogLevel = serverArgs.LogLevel;
 
-                    IPEndPoint serverIp   = Utils.ParseIPAddress(serverArgs.Server);
+                    IPEndPoint serverIp = Utils.ParseIPAddress(serverArgs.Server);
                     IPEndPoint backboneIp = Utils.ParseIPAddress(serverArgs.BackboneServer);
 
                     server = new TCPServer(serverIp, backboneIp);

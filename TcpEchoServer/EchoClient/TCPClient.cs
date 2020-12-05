@@ -3,6 +3,7 @@ using Common.Utility;
 using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace EchoClient
@@ -12,11 +13,19 @@ namespace EchoClient
         private readonly IPEndPoint _destinationIP;
         private TcpClient _tcpClient;
         private NetStreamHandler _client;
-        private int _clientId = 0; 
+        private int _clientId;
+        private int _totalReceivedMessages;
+
+        public int TotalReceivedMessages
+        {
+            get { return _totalReceivedMessages; }
+        }
 
         public TCPClient(IPEndPoint ip)
         {
             _destinationIP = ip;
+            _clientId = 0;
+            _totalReceivedMessages = 0;
         }
 
         public void Dispose()
@@ -30,21 +39,24 @@ namespace EchoClient
             try
             {
                 _tcpClient = new TcpClient();
-                await _tcpClient.ConnectAsync(_destinationIP.Address, _destinationIP.Port);
+                _tcpClient.Connect(_destinationIP.Address, _destinationIP.Port);
 
-                _client = new NetStreamHandler(_tcpClient , _clientId);
-                _client.StartListenStream();
+                _client = new NetStreamHandler(_tcpClient, _clientId);
                 _client.OnMessageReceived += OnMessageReceived;
+                _client.StartListenStream();
+
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 _tcpClient.Close();
                 Logger.Error(e.Message);
             }
         }
 
+
         public void OnMessageReceived(string message)
         {
+            Interlocked.Increment(ref _totalReceivedMessages);
             Logger.Info(message);
         }
 

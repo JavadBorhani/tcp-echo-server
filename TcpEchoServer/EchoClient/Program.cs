@@ -1,5 +1,4 @@
-﻿using CommandLine;
-using Common.Utility;
+﻿using Common.Utility;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -8,17 +7,6 @@ using System.Threading.Tasks;
 
 namespace EchoClient
 {
-    class ClientArguments
-    {
-        [Option('s', "servers", Required = true, HelpText = "list of server endpoints to connect")]
-        public IEnumerable<string> Server { get; set; }
-
-        [Option('m', "message", Required = false, HelpText = "echo message")]
-        public string EchoMessage { get; set; } = "echo";
-
-        [Option('l', "logLevel", Required = false, HelpText = "server log level")]
-        public Logger.LogLevels LogLevel { get; set; } = Logger.LogLevels.Info;
-    }
 
     public class ClientStats
     {
@@ -45,12 +33,11 @@ namespace EchoClient
 
                     await client.Start();
 
-                    //while (true)
-                    //{
-                    //    await Task.Delay(1000);
-                    //    Logger.Critical("received messages : {0}", stats.TotalMessageRecieved);
-                    //}
-
+                    while (true)
+                    {
+                        await Task.Delay(1000);
+                        Logger.Always("received messages : {0}", stats.TotalMessageRecieved);
+                    }
                 }
                 catch (Exception e)
                 {
@@ -60,7 +47,7 @@ namespace EchoClient
             });
 
             thread.Start();
-            Console.ReadLine();
+            
         }
     }
 }

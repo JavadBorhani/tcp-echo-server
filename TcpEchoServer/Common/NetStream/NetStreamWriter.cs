@@ -20,11 +20,9 @@ namespace Common.NetStream
         internal async Task WriteAsync(string message, CancellationToken cancelToken = default(CancellationToken))
         {
             byte[] messageByteArray = Encoding.ASCII.GetBytes(message);
-
             int headerSize = messageByteArray.Length;
 
             byte[] header = BitConverter.GetBytes(headerSize);
-
             int totalMessageLength = header.Length + messageByteArray.Length;
 
             byte[] totalMessage = new byte[totalMessageLength];

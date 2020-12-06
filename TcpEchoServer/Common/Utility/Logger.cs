@@ -8,10 +8,10 @@ namespace Common.Utility
         {
             Info,
             Error,
-            Critical
+            Always
         };
 
-        public static LogLevels LogLevel = LogLevels.Critical;
+        public static LogLevels LogLevel = LogLevels.Always;
         private static string infoPrefix = "[Info]: ";
         private static string errorPrefix = "[Error]: ";
 
@@ -27,7 +27,7 @@ namespace Common.Utility
                 Console.WriteLine(errorPrefix + message, args);
         }
 
-        public static void Critical(string message, params object[] args)
+        public static void Always(string message, params object[] args)
         {
             Console.WriteLine(message, args);
         }

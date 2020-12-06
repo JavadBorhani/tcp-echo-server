@@ -19,13 +19,13 @@ namespace EchoClient
 
         private IPEndPoint _currentServerAddress;
         private readonly IPEndPointProvider _ipEndPointProvider;
-        private readonly ClientStats clientStats;
+        private readonly ClientStats _clientStats;
 
         public EchoClient(int clientId, List<IPEndPoint> endPoints , ClientStats clientStats)
         {
-            _clientId = 0;
+            _clientId = clientId;
             _ipEndPointProvider = new IPEndPointProvider(endPoints);
-            this.clientStats = clientStats;
+            _clientStats = clientStats;
         }
 
         public void Dispose()
@@ -67,14 +67,17 @@ namespace EchoClient
             _client.OnDisconnected -= OnDisconnected;
 
             if(_retry == _maxRetry)
+            {
+                _retry = 0;
                 _currentServerAddress = _ipEndPointProvider.GetNewAddress();
-
+            }
+                
             _retry++;
             await Connect();
         }
         public void OnMessageReceived(string message)
         {
-            Interlocked.Increment(ref clientStats.TotalMessageRecieved);
+            Interlocked.Increment(ref _clientStats.TotalMessageRecieved);
             Logger.Info(message);
         }
 

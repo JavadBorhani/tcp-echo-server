@@ -1,19 +1,10 @@
-﻿using CommandLine;
-using Common.Utility;
+﻿using Common.Utility;
 using System;
 using System.Net;
 using System.Threading;
 
 namespace Backbone
 {
-    class BackboneArguments
-    {
-        [Option('b', "backbone", Required = true, HelpText = "backbone ip and port address")]
-        public string Server { get; set; }
-
-        [Option('l', "logLevel", Required = false, HelpText = "server log level")]
-        public Logger.LogLevels LogLevel { get; set; } = Logger.LogLevels.Critical;
-    }
 
     class Program
     {
@@ -33,8 +24,8 @@ namespace Backbone
                     server = new BackboneServer(backboneIp);
                     server.Start();
 
-                    Logger.Critical("Backbone started on {0} address", backboneIp.ToString());
-                    Logger.Critical("Press any key to exit...");
+                    Logger.Always("Backbone started on {0} address", backboneIp.ToString());
+                    Logger.Always("Press any key to exit...");
 
                     Console.ReadLine();
                 }

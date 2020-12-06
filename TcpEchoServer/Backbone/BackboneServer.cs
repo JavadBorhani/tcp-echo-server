@@ -12,7 +12,7 @@ namespace Backbone
     public class BackboneServer
     {
         private readonly IPEndPoint _backboneIP;
-        private readonly NetStreamHandlerCollection _clients;
+        private readonly ConcurrentCollection<int, NetStreamHandler> _clients;
 
         private TcpListener _backbone;
 
@@ -22,7 +22,7 @@ namespace Backbone
         public BackboneServer(IPEndPoint backboneIP)
         {
             _backboneIP = backboneIP;
-            _clients = new NetStreamHandlerCollection();
+            _clients = new ConcurrentCollection<int, NetStreamHandler>();
 
             _clientId = 0;
             _disconnected = false;  
@@ -38,7 +38,7 @@ namespace Backbone
                 while (_disconnected == false)
                 {
                     TcpClient newClient = await _backbone.AcceptTcpClientAsync();
-                    Accept(newClient).NoAwait();
+                    Task.Run(() => Accept(newClient)).NoAwait();
                 }
             }
             catch (SocketException socketException)
@@ -55,9 +55,8 @@ namespace Backbone
             }
         }
 
-        private async Task Accept(TcpClient client)
+        private void Accept(TcpClient client)
         {
-            await Task.Yield();
             try
             {
                 int newClientId = Interlocked.Increment(ref _clientId);
@@ -80,7 +79,7 @@ namespace Backbone
         {
             IEnumerable<NetStreamHandler> clients = _clients.GetAll();
 
-            foreach (var client in clients)
+            foreach (NetStreamHandler client in clients)
                 client.WriteAsync(message).NoAwait();
         }
 

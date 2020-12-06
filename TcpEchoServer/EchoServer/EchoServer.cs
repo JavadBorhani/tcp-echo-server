@@ -18,7 +18,7 @@ namespace EchoServer
     {
         private readonly IPEndPoint _serverIP;
         private readonly IPEndPoint _backboneIP;
-        private readonly NetStreamHandlerCollection _clients;
+        private readonly ConcurrentCollection<int, NetStreamHandler> _clients;
 
         public ServerStats ServerStats;
         private TcpListener _server;
@@ -32,7 +32,7 @@ namespace EchoServer
         {
             _serverIP = serverIP;
             _backboneIP = backboneIP;
-            _clients = new NetStreamHandlerCollection();
+            _clients = new ConcurrentCollection<int, NetStreamHandler>();
             ServerStats = new ServerStats();
 
             _clientId = 0;
@@ -40,13 +40,12 @@ namespace EchoServer
             _disconnected = false;
         }
 
-        private async Task Accept(TcpClient client)
+        private void Accept(TcpClient client)
         {
-            await Task.Yield();
             try
             {
                 int newClientId = Interlocked.Increment(ref _clientId);
-
+                
                 NetStreamHandler clientHandler = new NetStreamHandler(client, newClientId);
                 clientHandler.OnMessageReceived += OnClientMessageReceived;
                 clientHandler.OnDisconnected += OnClientDisconnect;
@@ -65,10 +64,21 @@ namespace EchoServer
             }
         }
 
+        private int GetRandomClientId()
+        {
+            Random random = new Random(Guid.NewGuid().GetHashCode());
+            List<int> keys = _clients.GetAllKeys();
+
+            int randIndex = random.Next(0, keys.Count);
+            int  randId = keys[randIndex];
+
+            return randId;
+        }
+
         private async Task DisconnectClientRandomly(int delayInSeconds)
         {
             await Task.Delay(delayInSeconds * 1000);
-            int randomClientId = _clients.GetRandomClientId();
+            int randomClientId = GetRandomClientId();
 
             Logger.Info("diconnect client {0} after 3 seconds", randomClientId);
             DisconnectClientAfterSeconds(randomClientId, 3).NoAwait();
@@ -145,7 +155,7 @@ namespace EchoServer
                 while (_disconnected == false)
                 {
                     TcpClient newClient = await _server.AcceptTcpClientAsync();
-                    Accept(newClient).NoAwait();
+                    Task.Run(() => Accept(newClient)).NoAwait();
                 }
             }
             catch (SocketException socketException)
@@ -166,7 +176,8 @@ namespace EchoServer
         {
             ConnectToBackbone();
             InitializeServer().NoAwait();
-            DisconnectClientRandomly(delayInSeconds: 10).NoAwait();
+
+            //DisconnectClientRandomly(delayInSeconds: 10).NoAwait();
         }
 
         public void Stop()

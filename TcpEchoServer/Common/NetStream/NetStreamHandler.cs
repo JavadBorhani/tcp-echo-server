@@ -37,18 +37,16 @@ namespace Common.NetStream
                 while (_disconnected == false)
                 {
                     string message = await _streamReader.ReadMessage();
-                    OnMessageReceived?.Invoke(message);
+                    if (message == null)
+                        break;
 
+                    OnMessageReceived?.Invoke(message);
                     cancellationToken.ThrowIfCancellationRequested();
                 }
             }
             catch (OperationCanceledException ex)
             {
                 Logger.Error("operation canceled {0}", ex.Message);
-            }
-            catch (InCompleteMessageException ex)
-            {
-                Logger.Error("incomplete message {0}" , ex.Message);
             }
             catch (Exception ex)
             {

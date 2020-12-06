@@ -1,6 +1,7 @@
 ﻿using Common.NetStream;
 using Common.Utility;
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -8,27 +9,23 @@ using System.Threading.Tasks;
 
 namespace EchoClient
 {
-
+   
     public class EchoClient : IDisposable
     {
         private NetStreamHandler _client;
         private int _clientId;
+        private int _retry = 0;
+        private int _maxRetry = 3; 
 
-        private int _totalReceivedMessages;
-        public int TotalReceivedMessages
-        {
-            get { return _totalReceivedMessages; }
-        }
-
-        private readonly IPEndPoint _currentServerAddress;
+        private IPEndPoint _currentServerAddress;
         private readonly IPEndPointProvider _ipEndPointProvider;
+        private readonly ClientStats clientStats;
 
-        public EchoClient(IPEndPointProvider ipEndPointProvider)
+        public EchoClient(int clientId, List<IPEndPoint> endPoints , ClientStats clientStats)
         {
             _clientId = 0;
-            _totalReceivedMessages = 0;
-            _ipEndPointProvider = ipEndPointProvider;
-            _currentServerAddress = _ipEndPointProvider.GetNewAddress();
+            _ipEndPointProvider = new IPEndPointProvider(endPoints);
+            this.clientStats = clientStats;
         }
 
         public void Dispose()
@@ -36,28 +33,48 @@ namespace EchoClient
             _client.Disconnect();
         }
 
-        public void Start()
+        public async Task Start()
+        {
+            _currentServerAddress = _ipEndPointProvider.GetNewAddress();
+            await Connect();
+        }
+
+        private async Task Connect()
         {
             try
             {
                 TcpClient tcpClient = new TcpClient();
-                tcpClient.Connect(_currentServerAddress.Address, _currentServerAddress.Port);
+                await tcpClient.ConnectAsync(_currentServerAddress.Address, _currentServerAddress.Port);
 
                 _client = new NetStreamHandler(tcpClient, _clientId);
                 _client.OnMessageReceived += OnMessageReceived;
+                _client.OnDisconnected += OnDisconnected;
                 _client.StartListenStream();
 
+                Logger.Info("connect to {0}", _currentServerAddress);
             }
             catch (Exception e)
             {
                 Logger.Error(e.Message);
             }
         }
+        private async void OnDisconnected(int clientId)
+        {
+            Logger.Error("disconnected from {0}", _currentServerAddress);
 
+            await Task.Delay(1000);
+            _client.OnMessageReceived -= OnMessageReceived;
+            _client.OnDisconnected -= OnDisconnected;
 
+            if(_retry == _maxRetry)
+                _currentServerAddress = _ipEndPointProvider.GetNewAddress();
+
+            _retry++;
+            await Connect();
+        }
         public void OnMessageReceived(string message)
         {
-            Interlocked.Increment(ref _totalReceivedMessages);
+            Interlocked.Increment(ref clientStats.TotalMessageRecieved);
             Logger.Info(message);
         }
 

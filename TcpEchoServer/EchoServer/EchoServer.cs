@@ -166,7 +166,7 @@ namespace EchoServer
         {
             ConnectToBackbone();
             InitializeServer().NoAwait();
-            //DisconnectClientRandomly(delayInSeconds: 10).NoAwait();
+            DisconnectClientRandomly(delayInSeconds: 10).NoAwait();
         }
 
         public void Stop()

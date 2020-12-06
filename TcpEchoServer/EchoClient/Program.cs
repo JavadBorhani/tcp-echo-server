@@ -17,10 +17,14 @@ namespace EchoClient
         public string EchoMessage { get; set; } = "echo";
 
         [Option('l', "logLevel", Required = false, HelpText = "server log level")]
-        public Logger.LogLevels LogLevel { get; set; } = Logger.LogLevels.Critical;
+        public Logger.LogLevels LogLevel { get; set; } = Logger.LogLevels.Info;
     }
 
-    
+    public class ClientStats
+    {
+        public int TotalMessageRecieved = 0;
+    }
+
     class Program
     {
         static void Main(string[] args)
@@ -32,39 +36,29 @@ namespace EchoClient
                 EchoClient client = null;
                 try
                 {
+                    Logger.LogLevel = clientArgs.LogLevel;
 
                     List<IPEndPoint> endPoints = Utils.ParseMultipleIPAddress(clientArgs.Server);
+                    int clientId = 0;
+                    ClientStats stats = new ClientStats();
+                    client = new EchoClient(clientId, endPoints, stats);
 
-                    IPEndPointProvider endPointProvider = new IPEndPointProvider(endPoints);
+                    await client.Start();
 
-                    client = new EchoClient(endPointProvider);
+                    //while (true)
+                    //{
+                    //    await Task.Delay(1000);
+                    //    Logger.Critical("received messages : {0}", stats.TotalMessageRecieved);
+                    //}
 
-                    client.Start();
-                    
-                    Logger.Critical("waiting 3 seconds");
-                    await Task.Delay(3 * 1000);
-                    Logger.Critical("sending requests...");
-
-                    string echo = "echo";
-                    int numOfMessages = 10000;
-                    for (int i = 0; i < numOfMessages; ++i)
-                        client.WriteMessage(echo).NoAwait();
-
-                    Logger.Critical($"{numOfMessages} sent");
-
-                    while (true)
-                    {
-                        await Task.Delay(1000);
-                        Logger.Critical("received messages : {0}", client.TotalReceivedMessages);
-                    }
-                    
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     client?.Dispose();
                     Logger.Error(e.StackTrace);
                 }
             });
+
             thread.Start();
             Console.ReadLine();
         }

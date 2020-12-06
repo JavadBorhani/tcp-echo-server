@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading;
 
@@ -11,7 +13,7 @@ namespace EchoClient
 
         public IPEndPointProvider(List<IPEndPoint> availableIpAddresses)
         {
-            _availableIpAddresses = availableIpAddresses;
+            _availableIpAddresses = availableIpAddresses.OrderBy(x => Guid.NewGuid()).ToList();
             _currentIndex = 0;
         }
 

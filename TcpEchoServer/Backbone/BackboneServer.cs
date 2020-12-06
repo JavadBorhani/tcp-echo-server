@@ -28,12 +28,7 @@ namespace Backbone
             _disconnected = false;  
         }
 
-        public void Start()
-        {
-            InitializeServer().NoAwait();
-        }
-
-        public async Task InitializeServer()
+        private async Task InitializeServer()
         {
             try
             {
@@ -83,7 +78,7 @@ namespace Backbone
 
         private void OnTcpServerMessageReceived(string message)
         {
-            IEnumerable<NetStreamHandler> clients = _clients.GetAllClients();
+            IEnumerable<NetStreamHandler> clients = _clients.GetAll();
 
             foreach (var client in clients)
                 client.WriteAsync(message).NoAwait();
@@ -96,6 +91,11 @@ namespace Backbone
             Logger.Info("Server with id {0} disconnected", clientId);
         }
 
+        public void Start()
+        {
+            InitializeServer().NoAwait();
+        }
+
         public void Stop()
         {
             try
@@ -103,7 +103,7 @@ namespace Backbone
                 _disconnected = false;
                 _backbone?.Stop();
 
-                IEnumerable<NetStreamHandler> clients = _clients.GetAllClients();
+                IEnumerable<NetStreamHandler> clients = _clients.GetAll();
 
                 foreach(var client in clients)
                     client.Disconnect();

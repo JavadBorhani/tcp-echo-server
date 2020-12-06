@@ -1,4 +1,5 @@
 ﻿using Nito.AsyncEx;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -17,7 +18,7 @@ namespace Common.NetStream
             _asyncReaderWriterLock = new AsyncReaderWriterLock();
         }
 
-        public IEnumerable<NetStreamHandler> GetAllClients()
+        public IEnumerable<NetStreamHandler> GetAll()
         {
             using (_asyncReaderWriterLock.ReaderLock())
             {
@@ -55,8 +56,21 @@ namespace Common.NetStream
             {
                 _collection.Clear();
                 _collectionValuesCache = null;
+            }       
+        }
+
+        public int GetRandomClientId()
+        {
+            using (_asyncReaderWriterLock.ReaderLock())
+            {
+                Random random = new Random(Guid.NewGuid().GetHashCode());
+                List<int> keys = _collection.Keys.ToList();
+
+                int randIndex = random.Next(0, keys.Count);
+                int randId = keys[randIndex];
+
+                return randId;
             }
-                
         }
     }
 }

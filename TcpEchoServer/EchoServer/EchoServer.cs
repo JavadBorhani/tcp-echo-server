@@ -40,10 +40,73 @@ namespace EchoServer
             _disconnected = false;
         }
 
-        public void Start()
+        private async Task Accept(TcpClient client)
         {
-            ConnectToBackbone();
-            InitializeServer().NoAwait();
+            await Task.Yield();
+            try
+            {
+                int newClientId = Interlocked.Increment(ref _clientId);
+
+                NetStreamHandler clientHandler = new NetStreamHandler(client, newClientId);
+                clientHandler.OnMessageReceived += OnClientMessageReceived;
+                clientHandler.OnDisconnected += OnClientDisconnect;
+                clientHandler.StartListenStream();
+
+                Logger.Info("Client with clientId {0} connected", newClientId);
+
+                _clients.Add(newClientId, clientHandler);
+
+                Interlocked.Increment(ref ServerStats.ClientCounts);
+
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Accepting client error: {0}", ex.Message);
+            }
+        }
+
+        private async Task DisconnectClientRandomly(int delayInSeconds)
+        {
+            await Task.Delay(delayInSeconds * 1000);
+            int randomClientId = _clients.GetRandomClientId();
+
+            Logger.Info("diconnect client {0} after 3 seconds", randomClientId);
+            DisconnectClientAfterSeconds(randomClientId, 3).NoAwait();
+        }
+
+        private async Task DisconnectClientAfterSeconds(int clientId , int seconds)
+        {
+            await Task.Delay(seconds * 1000);
+            NetStreamHandler client = _clients.Remove(clientId);
+            client?.Disconnect();
+        }
+
+        private void OnBackboneMessageReceived(string message)
+        {
+            IEnumerable<NetStreamHandler> clients = _clients.GetAll();
+
+            foreach (var client in clients)
+                client.WriteAsync(message).NoAwait();
+
+            Logger.Info(message);
+        }
+
+        private void OnDisconnectedFromBackbone(int id)
+        {
+            Logger.Error("Disconnected from backbone {0}", id);
+        }
+
+        private void OnClientMessageReceived(string message)
+        {
+            _backbone.WriteAsync(message).NoAwait();
+        }
+
+        private void OnClientDisconnect(int clientId)
+        {
+            _clients.Remove(clientId);
+
+            Interlocked.Decrement(ref ServerStats.ClientCounts);
+            Logger.Info("Client with clientId {0} disconnected", clientId);
         }
 
         private void ConnectToBackbone()
@@ -72,7 +135,7 @@ namespace EchoServer
             }
         }
 
-        public async Task InitializeServer()
+        private async Task InitializeServer()
         {
             try
             {
@@ -99,6 +162,13 @@ namespace EchoServer
             }
         }
 
+        public void Start()
+        {
+            ConnectToBackbone();
+            InitializeServer().NoAwait();
+            //DisconnectClientRandomly(delayInSeconds: 10).NoAwait();
+        }
+
         public void Stop()
         {
             try
@@ -107,7 +177,7 @@ namespace EchoServer
                 _backbone?.Disconnect();
                 _server?.Stop();
 
-                IEnumerable<NetStreamHandler> clients = _clients.GetAllClients();
+                IEnumerable<NetStreamHandler> clients = _clients.GetAll();
                 foreach (var client in clients)
                     client.Disconnect();
 
@@ -117,58 +187,6 @@ namespace EchoServer
             {
                 Logger.Error(exception.Message);
             }
-        }
-
-        private async Task Accept(TcpClient client)
-        {
-            await Task.Yield();
-            try
-            {
-                int newClientId = Interlocked.Increment(ref _clientId);
-
-                NetStreamHandler clientHandler = new NetStreamHandler(client, newClientId);
-                clientHandler.OnMessageReceived += OnClientMessageReceived;
-                clientHandler.OnDisconnected += OnClientDisconnect;
-                clientHandler.StartListenStream();
-
-                Logger.Info("Client with clientId {0} connected", newClientId);
-
-                _clients.Add(newClientId, clientHandler);
-
-                Interlocked.Increment(ref ServerStats.ClientCounts);
-            }
-            catch (Exception ex)
-            {
-                Logger.Error("Accepting client error: {0}", ex.Message);
-            }
-        }
-
-        private void OnBackboneMessageReceived(string message)
-        {
-            IEnumerable<NetStreamHandler> clients = _clients.GetAllClients();
-
-            foreach (var client in clients)
-                client.WriteAsync(message).NoAwait();
-
-            Logger.Info(message);
-        }
-
-        private void OnDisconnectedFromBackbone(int id)
-        {
-            Logger.Error("Disconnected from backbone {0}", id);
-        }
-
-        private void OnClientMessageReceived(string message)
-        {
-            _backbone.WriteAsync(message).NoAwait();
-        }
-
-        private void OnClientDisconnect(int clientId)
-        {
-            _clients.Remove(clientId);
-
-            Interlocked.Decrement(ref ServerStats.ClientCounts);
-            Logger.Info("Client with clientId {0} disconnected", clientId);
         }
 
     }

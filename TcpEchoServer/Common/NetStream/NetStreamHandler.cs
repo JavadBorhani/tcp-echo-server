@@ -30,23 +30,29 @@ namespace Common.NetStream
             _streamWriter = new NetStreamWriter(stream);
         }
 
-        private async Task ReadingFromStreamAsync()
+        private async Task ReadingFromStreamAsync(CancellationToken cancellationToken)
         {
             try
             {
                 while (_disconnected == false)
                 {
                     string message = await _streamReader.ReadMessage();
-
-                    if (message == null)
-                        break;  
-
                     OnMessageReceived?.Invoke(message);
+
+                    cancellationToken.ThrowIfCancellationRequested();
                 }
             }
-            catch (Exception exception)
+            catch (OperationCanceledException ex)
             {
-                Logger.Error(exception.Message);
+                Logger.Error("operation canceled {0}", ex.Message);
+            }
+            catch (InCompleteMessageException ex)
+            {
+                Logger.Error("incomplete message {0}" , ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex.Message);
             }
             finally
             {
@@ -67,7 +73,7 @@ namespace Common.NetStream
 
         public void StartListenStream()
         {
-            Task.Run(async () => await ReadingFromStreamAsync(), _cancelSource.Token);
+            Task.Run(async () => await ReadingFromStreamAsync(_cancelSource.Token));
         }
 
         public async Task WriteAsync(string message)

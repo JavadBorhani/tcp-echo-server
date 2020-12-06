@@ -23,7 +23,10 @@ namespace EchoServer
         public ServerStats ServerStats;
         private TcpListener _server;
         private NetStreamHandler _backbone;
+
         private int _clientId;
+        private int _backboneId;
+        private bool _disconnected;
 
         public EchoServer(IPEndPoint serverIP, IPEndPoint backboneIP)
         {
@@ -31,7 +34,10 @@ namespace EchoServer
             _backboneIP = backboneIP;
             _clients = new NetStreamHandlerCollection();
             ServerStats = new ServerStats();
+
             _clientId = 0;
+            _backboneId = -1;
+            _disconnected = false;
         }
 
         public void Start()
@@ -47,7 +53,7 @@ namespace EchoServer
                 TcpClient client = new TcpClient();
                 client.Connect(_backboneIP.Address, _backboneIP.Port);
 
-                _backbone = new NetStreamHandler(client, 0);
+                _backbone = new NetStreamHandler(client, _backboneId);
                 _backbone.OnMessageReceived += OnBackboneMessageReceived;
                 _backbone.OnDisconnected += OnDisconnectedFromBackbone;
                 _backbone.StartListenStream();
@@ -68,11 +74,12 @@ namespace EchoServer
 
         public async Task InitializeServer()
         {
-            _server = new TcpListener(_serverIP);
             try
             {
+                _server = new TcpListener(_serverIP);
                 _server.Start();
-                while (true)
+
+                while (_disconnected == false)
                 {
                     TcpClient newClient = await _server.AcceptTcpClientAsync();
                     Accept(newClient).NoAwait();
@@ -88,7 +95,7 @@ namespace EchoServer
             }
             finally
             {
-                _server.Stop();
+                Stop();
             }
         }
 
@@ -96,13 +103,15 @@ namespace EchoServer
         {
             try
             {
-                IEnumerable<NetStreamHandler> clients = _clients.GetAllClients();
+                _disconnected = false;
+                _backbone?.Disconnect();
+                _server?.Stop();
 
+                IEnumerable<NetStreamHandler> clients = _clients.GetAllClients();
                 foreach (var client in clients)
                     client.Disconnect();
 
-                _backbone?.Disconnect();
-                _server?.Stop();
+                _clients.ClearAll();
             }
             catch (SocketException exception)
             {
@@ -123,7 +132,9 @@ namespace EchoServer
                 clientHandler.StartListenStream();
 
                 Logger.Info("Client with clientId {0} connected", newClientId);
+
                 _clients.Add(newClientId, clientHandler);
+
                 Interlocked.Increment(ref ServerStats.ClientCounts);
             }
             catch (Exception ex)
@@ -155,8 +166,8 @@ namespace EchoServer
         private void OnClientDisconnect(int clientId)
         {
             _clients.Remove(clientId);
-            Interlocked.Decrement(ref ServerStats.ClientCounts);
 
+            Interlocked.Decrement(ref ServerStats.ClientCounts);
             Logger.Info("Client with clientId {0} disconnected", clientId);
         }
 

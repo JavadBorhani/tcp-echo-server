@@ -15,13 +15,17 @@ namespace Backbone
         private readonly NetStreamHandlerCollection _clients;
 
         private TcpListener _backbone;
+
         private int _clientId;
+        private bool _disconnected;
 
         public BackboneServer(IPEndPoint backboneIP)
         {
             _backboneIP = backboneIP;
             _clients = new NetStreamHandlerCollection();
+
             _clientId = 0;
+            _disconnected = false;  
         }
 
         public void Start()
@@ -31,11 +35,12 @@ namespace Backbone
 
         public async Task InitializeServer()
         {
-            _backbone = new TcpListener(_backboneIP);
             try
             {
+                _backbone = new TcpListener(_backboneIP);
                 _backbone.Start();
-                while (true)
+
+                while (_disconnected == false)
                 {
                     TcpClient newClient = await _backbone.AcceptTcpClientAsync();
                     Accept(newClient).NoAwait();
@@ -51,7 +56,7 @@ namespace Backbone
             }
             finally
             {
-                _backbone.Stop();
+                Stop();
             }
         }
 
@@ -95,12 +100,15 @@ namespace Backbone
         {
             try
             {
+                _disconnected = false;
+                _backbone?.Stop();
+
                 IEnumerable<NetStreamHandler> clients = _clients.GetAllClients();
 
                 foreach(var client in clients)
                     client.Disconnect();
                     
-                _backbone?.Stop();
+                _clients.ClearAll();
             }
             catch (SocketException exception)
             {

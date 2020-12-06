@@ -1,6 +1,5 @@
 ﻿using Nito.AsyncEx;
 using System;
-using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -18,21 +17,22 @@ namespace Common.NetStream
             _stream = stream;
         }
 
-        internal async Task WriteAsync(string message, CancellationToken cancellationToken = default(CancellationToken))
+        internal async Task WriteAsync(string message, CancellationToken cancelToken = default(CancellationToken))
         {
-            byte[] messageInByte = Encoding.ASCII.GetBytes(message);
-            int messageSize = messageInByte.Length;
-            byte[] messageSizeInByte = BitConverter.GetBytes(messageSize);
+            byte[] messageByteArray = Encoding.ASCII.GetBytes(message);
 
-            int totalMessageLength = messageSizeInByte.Length + messageInByte.Length;
+            int headerSize = messageByteArray.Length;
 
-            List<byte> wholeMessage = new List<byte>(totalMessageLength);
-            wholeMessage.AddRange(messageSizeInByte);
-            wholeMessage.AddRange(messageInByte);
-            var messageInArray = wholeMessage.ToArray();
+            byte[] header = BitConverter.GetBytes(headerSize);
+
+            int totalMessageLength = header.Length + messageByteArray.Length;
+
+            byte[] totalMessage = new byte[totalMessageLength];
+            Buffer.BlockCopy(header, 0, totalMessage, 0, header.Length);
+            Buffer.BlockCopy(messageByteArray, 0, totalMessage, header.Length, messageByteArray.Length);
 
             using (await _asyncLock.LockAsync())
-                await _stream.WriteAsync(messageInArray, 0, messageInArray.Length, cancellationToken);
+                await _stream.WriteAsync(totalMessage, 0, totalMessage.Length, cancelToken);
         }
     }
 }

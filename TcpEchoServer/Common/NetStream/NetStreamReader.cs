@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace Common.NetStream
 {
+
     internal class NetStreamReader
     {
         private readonly NetworkStream _stream;
@@ -21,9 +22,15 @@ namespace Common.NetStream
 
             int bytesReadCount = 0;
             int chunkSize = 1;
+
             while (bytesReadCount < buffer.Length && chunkSize > 0)
-                bytesReadCount += chunkSize =
-                  await _stream.ReadAsync(buffer, bytesReadCount, buffer.Length - bytesReadCount);
+            {
+                chunkSize = await _stream.ReadAsync(buffer, bytesReadCount, buffer.Length - bytesReadCount);
+                bytesReadCount += chunkSize;
+            }
+
+            if (bytesReadCount != bufferSize)
+                throw new InCompleteMessageException();
 
             return buffer;
         }
@@ -31,11 +38,8 @@ namespace Common.NetStream
         private async Task<int> ReadHeaderAsync()
         {
             byte[] buffer = await ReadBufferAsync(HeaderSize);
-
-            if (buffer.Length == 0)
-                return 0;
-
             int messageSize = BitConverter.ToInt32(buffer);
+
             return messageSize;
         }
 
@@ -50,10 +54,8 @@ namespace Common.NetStream
         internal async Task<string> ReadMessage()
         {
             int messageSize = await ReadHeaderAsync();
-            if (messageSize == 0)
-                return null;
-
             string message = await ReadMessageAsync(messageSize);
+
             return message;
         }
 

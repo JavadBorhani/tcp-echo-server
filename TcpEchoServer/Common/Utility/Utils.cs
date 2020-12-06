@@ -1,4 +1,5 @@
 ﻿using CommandLine;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
@@ -13,8 +14,8 @@ namespace Common.Utility
             string[] ipAdressAndPort = stringAddress.Trim().Split(":");
             string ip = ipAdressAndPort[0];
             int port = int.Parse(ipAdressAndPort[1]);
-            IPEndPoint endPoint = new IPEndPoint(IPAddress.Parse(ip), port);
 
+            IPEndPoint endPoint = new IPEndPoint(IPAddress.Parse(ip), port);
             return endPoint;
         }
 
@@ -33,10 +34,12 @@ namespace Common.Utility
 
         public static T ReadArguments<T>(string[] args) where T : new()
         {
-            ParserResult<T> result = Parser.Default.ParseArguments<T>(args);
+            ParserResult<T> parseResult = Parser.Default.ParseArguments<T>(args);
             T arguments = new T();
-            if (result.Tag == ParserResultType.Parsed)
-                arguments = ((Parsed<T>)result).Value;
+
+            if (parseResult.Tag == ParserResultType.Parsed)
+                arguments = ((Parsed<T>)parseResult).Value;
+
             return arguments;
         }
 

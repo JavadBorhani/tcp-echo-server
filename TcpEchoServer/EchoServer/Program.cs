@@ -15,7 +15,7 @@ namespace EchoServer
         public string BackboneServer { get; set; }
 
         [Option('l', "logLevel", Required = false, HelpText = "server log level")]
-        public Logger.LogLevels LogLevel { get; set; } = Logger.LogLevels.ForceLog;
+        public Logger.LogLevels LogLevel { get; set; } = Logger.LogLevels.Critical;
 
     }
 
@@ -27,7 +27,7 @@ namespace EchoServer
 
             Thread thread = new Thread(() =>
             {
-                TCPServer server = null;
+                EchoServer server = null;
                 try
                 {
                     Logger.LogLevel = serverArgs.LogLevel;
@@ -35,11 +35,11 @@ namespace EchoServer
                     IPEndPoint serverIp = Utils.ParseIPAddress(serverArgs.Server);
                     IPEndPoint backboneIp = Utils.ParseIPAddress(serverArgs.BackboneServer);
 
-                    server = new TCPServer(serverIp, backboneIp);
+                    server = new EchoServer(serverIp, backboneIp);
                     server.Start();
 
-                    Logger.ForceLog("Server started on {0} address", serverIp.ToString());
-                    Logger.ForceLog("Press any key to exit...");
+                    Logger.Critical("Server started on {0} address", serverIp.ToString());
+                    Logger.Critical("Press any key to exit...");
 
                     Console.ReadLine();
                 }

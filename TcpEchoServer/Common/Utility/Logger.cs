@@ -8,10 +8,10 @@ namespace Common.Utility
         {
             Info,
             Error,
-            ForceLog
+            Critical
         };
 
-        public static LogLevels LogLevel = LogLevels.ForceLog;
+        public static LogLevels LogLevel = LogLevels.Critical;
         private static string infoPrefix = "[Info]: ";
         private static string errorPrefix = "[Error]: ";
 
@@ -27,12 +27,9 @@ namespace Common.Utility
                 Console.WriteLine(errorPrefix + message, args);
         }
 
-        public static void ForceLog(string message, params object[] args)
+        public static void Critical(string message, params object[] args)
         {
-            if (LogLevel == LogLevels.ForceLog  || 
-                LogLevel == LogLevels.Error     || 
-                LogLevel == LogLevels.Info)
-                Console.WriteLine(message, args);
+            Console.WriteLine(message, args);
         }
 
     }

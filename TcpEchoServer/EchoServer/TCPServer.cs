@@ -9,21 +9,28 @@ using System.Threading.Tasks;
 
 namespace EchoServer
 {
-    public class TCPServer
+    public struct ServerStats
+    {
+        public int ClientCounts;
+    }
+
+    public class EchoServer
     {
         private readonly IPEndPoint _serverIP;
         private readonly IPEndPoint _backboneIP;
         private readonly NetStreamHandlerCollection _clients;
 
+        public ServerStats ServerStats;
         private TcpListener _server;
         private NetStreamHandler _backbone;
         private int _clientId;
 
-        public TCPServer(IPEndPoint serverIP, IPEndPoint backboneIP)
+        public EchoServer(IPEndPoint serverIP, IPEndPoint backboneIP)
         {
             _serverIP = serverIP;
             _backboneIP = backboneIP;
             _clients = new NetStreamHandlerCollection();
+            ServerStats = new ServerStats();
             _clientId = 0;
         }
 
@@ -85,14 +92,14 @@ namespace EchoServer
             }
         }
 
-        public async Task Stop()
+        public void Stop()
         {
             try
             {
-                List<NetStreamHandler> clients = await _clients.GetAllClients();
+                IEnumerable<NetStreamHandler> clients = _clients.GetAllClients();
 
-                for (int i = 0; i < clients.Count; ++i)
-                    clients[i].Disconnect();
+                foreach (var client in clients)
+                    client.Disconnect();
 
                 _backbone?.Disconnect();
                 _server?.Stop();
@@ -105,6 +112,7 @@ namespace EchoServer
 
         private async Task Accept(TcpClient client)
         {
+            await Task.Yield();
             try
             {
                 int newClientId = Interlocked.Increment(ref _clientId);
@@ -115,7 +123,8 @@ namespace EchoServer
                 clientHandler.StartListenStream();
 
                 Logger.Info("Client with clientId {0} connected", newClientId);
-                await _clients.Add(newClientId, clientHandler);
+                _clients.Add(newClientId, clientHandler);
+                Interlocked.Increment(ref ServerStats.ClientCounts);
             }
             catch (Exception ex)
             {
@@ -123,12 +132,12 @@ namespace EchoServer
             }
         }
 
-        private async void OnBackboneMessageReceived(string message)
+        private void OnBackboneMessageReceived(string message)
         {
-            List<NetStreamHandler> clients = await _clients.GetAllClients();
+            IEnumerable<NetStreamHandler> clients = _clients.GetAllClients();
 
-            for (int i = 0; i < clients.Count; ++i)
-                clients[i].WriteAsync(message).NoAwait();
+            foreach (var client in clients)
+                client.WriteAsync(message).NoAwait();
 
             Logger.Info(message);
         }
@@ -143,9 +152,11 @@ namespace EchoServer
             _backbone.WriteAsync(message).NoAwait();
         }
 
-        private async void OnClientDisconnect(int clientId)
+        private void OnClientDisconnect(int clientId)
         {
-            await _clients.Remove(clientId);
+            _clients.Remove(clientId);
+            Interlocked.Decrement(ref ServerStats.ClientCounts);
+
             Logger.Info("Client with clientId {0} disconnected", clientId);
         }
 

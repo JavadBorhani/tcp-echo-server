@@ -57,6 +57,7 @@ namespace Backbone
 
         private async Task Accept(TcpClient client)
         {
+            await Task.Yield();
             try
             {
                 int newClientId = Interlocked.Increment(ref _clientId);
@@ -67,7 +68,7 @@ namespace Backbone
                 clientHandler.StartListenStream();
 
                 Logger.Info("Server with id {0} connected", newClientId);
-                await _clients.Add(newClientId, clientHandler);
+                _clients.Add(newClientId, clientHandler);
             }
             catch (Exception ex)
             {
@@ -75,30 +76,30 @@ namespace Backbone
             }
         }
 
-        private async void OnTcpServerMessageReceived(string message)
+        private void OnTcpServerMessageReceived(string message)
         {
-            var clients = await _clients.GetAllClients();
+            IEnumerable<NetStreamHandler> clients = _clients.GetAllClients();
 
-            for (int i = 0; i < clients.Count; ++i)
-                clients[i].WriteAsync(message).NoAwait();
-
+            foreach (var client in clients)
+                client.WriteAsync(message).NoAwait();
         }
 
-        private async void OnClientDisconnect(int clientId)
+        private void OnClientDisconnect(int clientId)
         {
-            await _clients.Remove(clientId);
+            _clients.Remove(clientId);
+
             Logger.Info("Server with id {0} disconnected", clientId);
         }
 
-        public async Task Stop()
+        public void Stop()
         {
             try
             {
-                List<NetStreamHandler> clients = await _clients.GetAllClients();
+                IEnumerable<NetStreamHandler> clients = _clients.GetAllClients();
 
-                for (int i = 0; i < clients.Count; ++i)
-                    clients[i].Disconnect();
-
+                foreach(var client in clients)
+                    client.Disconnect();
+                    
                 _backbone?.Stop();
             }
             catch (SocketException exception)

@@ -12,7 +12,7 @@ namespace Backbone
         public string Server { get; set; }
 
         [Option('l', "logLevel", Required = false, HelpText = "server log level")]
-        public Logger.LogLevels LogLevel { get; set; } = Logger.LogLevels.ForceLog;
+        public Logger.LogLevels LogLevel { get; set; } = Logger.LogLevels.Critical;
     }
 
     class Program
@@ -33,8 +33,8 @@ namespace Backbone
                     server = new BackboneServer(backboneIp);
                     server.Start();
 
-                    Logger.ForceLog("Backbone started on {0} address", backboneIp.ToString());
-                    Logger.ForceLog("Press any key to exit...");
+                    Logger.Critical("Backbone started on {0} address", backboneIp.ToString());
+                    Logger.Critical("Press any key to exit...");
 
                     Console.ReadLine();
                 }

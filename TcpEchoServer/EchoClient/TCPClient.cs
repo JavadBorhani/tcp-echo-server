@@ -8,47 +8,48 @@ using System.Threading.Tasks;
 
 namespace EchoClient
 {
-    public class TCPClient : IDisposable
+
+    public class EchoClient : IDisposable
     {
-        private readonly IPEndPoint _destinationIP;
-        private TcpClient _tcpClient;
         private NetStreamHandler _client;
         private int _clientId;
-        private int _totalReceivedMessages;
 
+        private int _totalReceivedMessages;
         public int TotalReceivedMessages
         {
             get { return _totalReceivedMessages; }
         }
 
-        public TCPClient(IPEndPoint ip)
+        private readonly IPEndPoint _currentServerAddress;
+        private readonly IPEndPointProvider _ipEndPointProvider;
+
+        public EchoClient(IPEndPointProvider ipEndPointProvider)
         {
-            _destinationIP = ip;
             _clientId = 0;
             _totalReceivedMessages = 0;
+            _ipEndPointProvider = ipEndPointProvider;
+            _currentServerAddress = _ipEndPointProvider.GetNewAddress();
         }
 
         public void Dispose()
         {
             _client.Disconnect();
-            _tcpClient.Close();
         }
 
-        public async Task StartAsync()
+        public void Start()
         {
             try
             {
-                _tcpClient = new TcpClient();
-                _tcpClient.Connect(_destinationIP.Address, _destinationIP.Port);
+                TcpClient tcpClient = new TcpClient();
+                tcpClient.Connect(_currentServerAddress.Address, _currentServerAddress.Port);
 
-                _client = new NetStreamHandler(_tcpClient, _clientId);
+                _client = new NetStreamHandler(tcpClient, _clientId);
                 _client.OnMessageReceived += OnMessageReceived;
                 _client.StartListenStream();
 
             }
             catch (Exception e)
             {
-                _tcpClient.Close();
                 Logger.Error(e.Message);
             }
         }

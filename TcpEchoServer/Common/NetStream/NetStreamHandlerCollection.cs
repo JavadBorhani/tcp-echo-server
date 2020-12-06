@@ -1,7 +1,6 @@
 ﻿using Nito.AsyncEx;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Common.NetStream
 {
@@ -10,34 +9,54 @@ namespace Common.NetStream
         private readonly Dictionary<int, NetStreamHandler> _collection;
         private readonly AsyncReaderWriterLock _asyncReaderWriterLock;
 
+        private List<NetStreamHandler> _collectionValuesCache; 
+
         public NetStreamHandlerCollection()
         {
             _collection = new Dictionary<int, NetStreamHandler>();
             _asyncReaderWriterLock = new AsyncReaderWriterLock();
         }
 
-        public async Task<List<NetStreamHandler>> GetAllClients()
+        public IEnumerable<NetStreamHandler> GetAllClients()
         {
-            using (await _asyncReaderWriterLock.ReaderLockAsync())
-                return _collection.Values.ToList();
+            using (_asyncReaderWriterLock.ReaderLock())
+            {
+                if (_collectionValuesCache == null)
+                    _collectionValuesCache = _collection.Values.ToList();
+
+                return _collectionValuesCache;
+            }
+
         }
 
-        public async Task Add(int id, NetStreamHandler streamHandler)
+        public void Add(int id, NetStreamHandler streamHandler)
         {
-            using (await _asyncReaderWriterLock.WriterLockAsync())
-                _collection.Add(id, streamHandler);
+            using (_asyncReaderWriterLock.WriterLock())
+            {
+                _collection.TryAdd(id, streamHandler);
+                _collectionValuesCache = null;
+            }
         }
 
-        public async Task Remove(int id)
+        public NetStreamHandler Remove(int id)
         {
-            using (await _asyncReaderWriterLock.WriterLockAsync())
+            using (_asyncReaderWriterLock.WriterLock())
+            {
                 _collection.Remove(id, out var streamHandler);
+                _collectionValuesCache = null;
+
+                return streamHandler;   
+            }
         }
 
-        public async Task ClearAll()
+        public void ClearAll()
         {
-            using (await _asyncReaderWriterLock.WriterLockAsync())
+            using (_asyncReaderWriterLock.WriterLock())
+            {
                 _collection.Clear();
+                _collectionValuesCache = null;
+            }
+                
         }
     }
 }

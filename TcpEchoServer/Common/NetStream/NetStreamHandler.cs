@@ -23,7 +23,8 @@ namespace Common.NetStream
         {
             _tcpClient = tcpClient;
             _clientId = clientId;
-            var stream = _tcpClient.GetStream();
+            NetworkStream stream = _tcpClient.GetStream();
+
             _cancelSource = new CancellationTokenSource();
             _streamReader = new NetStreamReader(stream);
             _streamWriter = new NetStreamWriter(stream);

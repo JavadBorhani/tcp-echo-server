@@ -19,11 +19,11 @@ namespace Common.NetStream
         {
             byte[] buffer = new byte[bufferSize];
 
-            int bytesRead = 0;
+            int bytesReadCount = 0;
             int chunkSize = 1;
-            while (bytesRead < buffer.Length && chunkSize > 0)
-                bytesRead += chunkSize =
-                  await _stream.ReadAsync(buffer, bytesRead, buffer.Length - bytesRead);
+            while (bytesReadCount < buffer.Length && chunkSize > 0)
+                bytesReadCount += chunkSize =
+                  await _stream.ReadAsync(buffer, bytesReadCount, buffer.Length - bytesReadCount);
 
             return buffer;
         }

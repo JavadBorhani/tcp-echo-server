@@ -13,7 +13,7 @@ namespace Common.NetStream
         private readonly NetworkStream _stream;
         private readonly AsyncLock _asyncLock = new AsyncLock();
 
-        public NetStreamWriter(NetworkStream stream)
+        internal NetStreamWriter(NetworkStream stream)
         {
             _stream = stream;
         }

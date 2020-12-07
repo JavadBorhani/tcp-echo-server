@@ -18,10 +18,10 @@ namespace EchoClient
 
         public void PrintStats()
         {
-            Logger.Always("TotalMessageSent              : {0}", TotalMessageSent);
-            Logger.Always("TotalMessageRecieved          : {0}", TotalMessageRecieved);
-            Logger.Always("TotalExpectedReceivedMessages : {0}", TotalExpectedReceivedMessages);
             Logger.Always("TotalExpectedSendMessages     : {0}", TotalExpectedSendMessages);
+            Logger.Always("TotalMessageSent              : {0}", TotalMessageSent);
+            Logger.Always("TotalExpectedReceivedMessages : {0}", TotalExpectedReceivedMessages);
+            Logger.Always("TotalMessageRecieved          : {0}", TotalMessageRecieved);
             Logger.Always("ClientCounts                  : {0}", ClientCounts);
         }
     }

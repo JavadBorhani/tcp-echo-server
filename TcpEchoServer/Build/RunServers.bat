@@ -8,8 +8,5 @@ start "Server 2" cmd.exe /k "dotnet EchoServer\Release\netcoreapp2.2\EchoServer.
 start "Server 3" cmd.exe /k "dotnet EchoServer\Release\netcoreapp2.2\EchoServer.dll -s 0.0.0.0:50012 -b 127.0.0.1:50001 "
 start "Server 4" cmd.exe /k "dotnet EchoServer\Release\netcoreapp2.2\EchoServer.dll -s 0.0.0.0:50013 -b 127.0.0.1:50001 "
 start "Server 5" cmd.exe /k "dotnet EchoServer\Release\netcoreapp2.2\EchoServer.dll -s 0.0.0.0:50014 -b 127.0.0.1:50001 "
-sleep 2
-REM start "Clients" cmd.exe /k "dotnet EchoClient\Release\netcoreapp2.2\EchoClient.dll -c 300 -p 100 -s 127.0.0.1:50010 127.0.0.1:50011 127.0.0.1:50012 127.0.0.1:50013 127.0.0.1:50014"
-
 
 exit

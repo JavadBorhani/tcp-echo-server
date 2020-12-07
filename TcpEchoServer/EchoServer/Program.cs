@@ -2,6 +2,7 @@
 using System;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace EchoServer
 {
@@ -26,6 +27,15 @@ namespace EchoServer
 
                     Logger.Always("Server started on {0} address", serverIp.ToString());
                     Logger.Always("Press any key to exit...");
+
+                    Task.Run(async () =>
+                    {
+                        while (true)
+                        {
+                            await Task.Delay(5000);
+                            Logger.Always("ClientCounts: {0}", server.GetActiveClients);
+                        }
+                    });
 
                     Console.ReadLine();
                 }

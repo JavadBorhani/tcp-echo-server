@@ -2,7 +2,7 @@
   "profiles": {
     "EchoClient": {
       "commandName": "Project",
-      "commandLineArgs": "-s 127.0.0.1:50010"
+      "commandLineArgs": "-c 300 -p 10 -s 127.0.0.1:50010 127.0.0.1:50011 127.0.0.1:50012"
     }
   }
 }

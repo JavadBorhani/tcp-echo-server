@@ -21,6 +21,18 @@ namespace Common.NetStream
                 return _collection.Values;
         }
 
+        public List<TKey> GetAllKeys()
+        {
+            using (_asyncReaderWriterLock.ReaderLock())
+                return _collection.Keys.ToList();
+        }
+        
+        public int Count()
+        {
+            using (_asyncReaderWriterLock.ReaderLock())
+                return _collection.Count;
+        }
+
         public void Add(TKey key, TValue value)
         {
             using (_asyncReaderWriterLock.WriterLock())
@@ -36,12 +48,7 @@ namespace Common.NetStream
             }
         }
 
-        public List<TKey> GetAllKeys()
-        {
-            using (_asyncReaderWriterLock.ReaderLock())
-                return _collection.Keys.ToList();
-        }
-
+      
         public void ClearAll()
         {
             using (_asyncReaderWriterLock.WriterLock())

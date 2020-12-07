@@ -29,6 +29,7 @@ namespace Common.NetStream
 
                 if (chunkSize == 0)
                     return null;
+
             }
 
             return buffer;

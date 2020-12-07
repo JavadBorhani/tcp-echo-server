@@ -10,6 +10,7 @@ namespace EchoClient
     {
         private readonly List<IPEndPoint> _availableIpAddresses;
         private int _currentIndex; 
+        
 
         public IPEndPointProvider(List<IPEndPoint> availableIpAddresses)
         {

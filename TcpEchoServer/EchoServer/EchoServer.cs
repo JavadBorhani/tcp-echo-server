@@ -40,12 +40,17 @@ namespace EchoServer
             _disconnected = false;
         }
 
+        public int GetActiveClients
+        {
+            get { return _clients.Count(); }
+        }
+
         private void Accept(TcpClient client)
         {
             try
             {
                 int newClientId = Interlocked.Increment(ref _clientId);
-                
+
                 NetStreamHandler clientHandler = new NetStreamHandler(client, newClientId);
                 clientHandler.OnMessageReceived += OnClientMessageReceived;
                 clientHandler.OnDisconnected += OnClientDisconnect;
@@ -70,7 +75,7 @@ namespace EchoServer
             List<int> keys = _clients.GetAllKeys();
 
             int randIndex = random.Next(0, keys.Count);
-            int  randId = keys[randIndex];
+            int randId = keys[randIndex];
 
             return randId;
         }
@@ -84,7 +89,7 @@ namespace EchoServer
             DisconnectClientAfterSeconds(randomClientId, 3).NoAwait();
         }
 
-        private async Task DisconnectClientAfterSeconds(int clientId , int seconds)
+        private async Task DisconnectClientAfterSeconds(int clientId, int seconds)
         {
             await Task.Delay(seconds * 1000);
             NetStreamHandler client = _clients.Remove(clientId);

@@ -9,34 +9,40 @@ using System.Threading.Tasks;
 
 namespace EchoClient
 {
-   
+
     public class EchoClient : IDisposable
     {
         private NetStreamHandler _client;
         private int _clientId;
         private int _retry = 0;
-        private int _maxRetry = 3; 
+        private int _maxRetry = 3;
+        private bool _disconnected = false;
 
         private IPEndPoint _currentServerAddress;
         private readonly IPEndPointProvider _ipEndPointProvider;
         private readonly ClientStats _clientStats;
 
-        public EchoClient(int clientId, List<IPEndPoint> endPoints , ClientStats clientStats)
+        public EchoClient(int clientId, List<IPEndPoint> endPoints, ClientStats clientStats)
         {
             _clientId = clientId;
             _ipEndPointProvider = new IPEndPointProvider(endPoints);
             _clientStats = clientStats;
         }
 
-        public void Dispose()
+        void IDisposable.Dispose()
         {
-            _client.Disconnect();
+            Stop();
         }
 
-        public async Task Start()
+        public void Stop()
         {
-            _currentServerAddress = _ipEndPointProvider.GetNewAddress();
-            await Connect();
+            if (_disconnected == false)
+            {
+                _disconnected = true;
+                _client.OnDisconnected -= OnDisconnected;
+                _client.OnMessageReceived -= OnMessageReceived;
+                _client.Disconnect();
+            }
         }
 
         private async Task Connect()
@@ -58,6 +64,7 @@ namespace EchoClient
                 Logger.Error(e.Message);
             }
         }
+
         private async void OnDisconnected(int clientId)
         {
             Logger.Error("disconnected from {0}", _currentServerAddress);
@@ -66,23 +73,31 @@ namespace EchoClient
             _client.OnMessageReceived -= OnMessageReceived;
             _client.OnDisconnected -= OnDisconnected;
 
-            if(_retry == _maxRetry)
+            if (_retry == _maxRetry)
             {
                 _retry = 0;
                 _currentServerAddress = _ipEndPointProvider.GetNewAddress();
             }
-                
+
             _retry++;
             await Connect();
         }
+
         public void OnMessageReceived(string message)
         {
             Interlocked.Increment(ref _clientStats.TotalMessageRecieved);
             Logger.Info(message);
         }
 
+        public async Task Start()
+        {
+            _currentServerAddress = _ipEndPointProvider.GetNewAddress();
+            await Connect();
+        }
+
         public async Task WriteMessage(string message)
         {
+            Interlocked.Increment(ref _clientStats.TotalMessageSent);
             await _client.WriteAsync(message);
         }
 

@@ -1,5 +1,5 @@
 echo start
-
+REM Start Backbone
 start "Backbone" cmd.exe /k "dotnet Backbone\Release\netcoreapp2.2\Backbone.dll -b 0.0.0.0:50001 "
 sleep 2
 REM Start Servers

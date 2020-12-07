@@ -61,7 +61,7 @@ namespace EchoClient
                     Logger.Always("");
 
                     stats.PrintStats();
-                    Logger.Always("ElapsedTime: {0}", stopwatch.Elapsed.Seconds);
+                    Logger.Always("ElapsedTime: {0}", stopwatch.Elapsed);
 
                     cts.Token.ThrowIfCancellationRequested();
                 }

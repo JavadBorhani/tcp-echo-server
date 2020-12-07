@@ -1,7 +1,7 @@
 ### Brief Architecture
 
 Intro:
-	this echo server and client implementation consist of three
+	This echo server and client implementation consist of three
 	modules each of them is described in the following sentences
 
 Backbone:
@@ -29,12 +29,9 @@ EchoClient:
 ### How To Build
 
 	* please note that .net core 2.2 should have been installed.
-	*
-	* There is already a built version in .
 	
 	There are two approaches to build which is described in 
 	the following parts
-		 
 		 
 	Build.bat:
 		This file will restore the required packages and build the
@@ -42,17 +39,16 @@ EchoClient:
 		After this batch file execution succeeded, three files 
 		will be added to "Build" directory with the following names
 		("Backbone", "EchoClient","EchoServer"). "Build" directory 
-		is located in the "TcpEchoServer"
+		is located in the "TcpEchoServer" directory
 		
 	VisualStudio 2017:
 		Open "TcpEchoServer.sln" from TcpEchoServer folder then select
 		"Release" as configuration, then click "Build Solution" from
 		Build menu.
 		After Build succeeded, three folders will be generated in "Build" 
-		folder which is located in the "TcpEchoServer" with the 
+		folder which is located in the "TcpEchoServer" directory with the 
 		following names ("Backbone", "EchoClient","EchoServer")
 		
-
 ### How To Run
 
 	* please note that .net core 2.2 should have been installed.
@@ -117,7 +113,6 @@ EchoClient:
 		A binary serializer and deserializer like MessagePack 
 		could have been used instead of simple string encoding.
 	
-	
 	Architecture:
 		To simply describe the round-trip of echo, an echo client will
 		send a message to echo server and it will be forwarded to the 
@@ -134,6 +129,3 @@ EchoClient:
 		echo servers can connect to another remained backbone and 
 		continue working. 
 		
-		
-		
-

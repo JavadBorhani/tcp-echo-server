@@ -9,18 +9,12 @@ using System.Threading.Tasks;
 
 namespace EchoServer
 {
-    public struct ServerStats
-    {
-        public int ClientCounts;
-    }
-
     public class EchoServer
     {
         private readonly IPEndPoint _serverIP;
         private readonly IPEndPoint _backboneIP;
         private readonly ConcurrentCollection<int, NetStreamHandler> _clients;
 
-        public ServerStats ServerStats;
         private TcpListener _server;
         private NetStreamHandler _backbone;
 
@@ -33,7 +27,6 @@ namespace EchoServer
             _serverIP = serverIP;
             _backboneIP = backboneIP;
             _clients = new ConcurrentCollection<int, NetStreamHandler>();
-            ServerStats = new ServerStats();
 
             _clientId = 0;
             _backboneId = -1;
@@ -59,9 +52,6 @@ namespace EchoServer
                 Logger.Info("Client with clientId {0} connected", newClientId);
 
                 _clients.Add(newClientId, clientHandler);
-
-                Interlocked.Increment(ref ServerStats.ClientCounts);
-
             }
             catch (Exception ex)
             {
@@ -120,7 +110,6 @@ namespace EchoServer
         {
             _clients.Remove(clientId);
 
-            Interlocked.Decrement(ref ServerStats.ClientCounts);
             Logger.Info("Client with clientId {0} disconnected", clientId);
         }
 

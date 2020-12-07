@@ -29,22 +29,6 @@ namespace EchoClient
             _clientStats = clientStats;
         }
 
-        void IDisposable.Dispose()
-        {
-            Stop();
-        }
-
-        public void Stop()
-        {
-            if (_disconnected == false)
-            {
-                _disconnected = true;
-                _client.OnDisconnected -= OnDisconnected;
-                _client.OnMessageReceived -= OnMessageReceived;
-                _client.Disconnect();
-            }
-        }
-
         private async Task Connect()
         {
             try
@@ -99,6 +83,22 @@ namespace EchoClient
         {
             Interlocked.Increment(ref _clientStats.TotalMessageSent);
             await _client.WriteAsync(message);
+        }
+
+        public void Stop()
+        {
+            if (_disconnected == false)
+            {
+                _disconnected = true;
+                _client.OnDisconnected -= OnDisconnected;
+                _client.OnMessageReceived -= OnMessageReceived;
+                _client.Disconnect();
+            }
+        }
+
+        void IDisposable.Dispose()
+        {
+            Stop();
         }
 
     }

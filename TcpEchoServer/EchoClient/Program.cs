@@ -15,14 +15,16 @@ namespace EchoClient
         public int TotalExpectedReceivedMessages = 0;
         public int TotalExpectedSendMessages = 0;
         public int ClientCounts = 0;
+        public int MessagePerClient = 0;
 
         public void PrintStats()
         {
+            Logger.Always("ClientCounts                  : {0}", ClientCounts);
+            Logger.Always("MessagePerClient              : {0}", MessagePerClient);
             Logger.Always("TotalExpectedSendMessages     : {0}", TotalExpectedSendMessages);
             Logger.Always("TotalMessageSent              : {0}", TotalMessageSent);
             Logger.Always("TotalExpectedReceivedMessages : {0}", TotalExpectedReceivedMessages);
             Logger.Always("TotalMessageRecieved          : {0}", TotalMessageRecieved);
-            Logger.Always("ClientCounts                  : {0}", ClientCounts);
         }
     }
 
@@ -40,6 +42,7 @@ namespace EchoClient
             stats.ClientCounts = clientArgs.ClientCount;
             stats.TotalExpectedSendMessages = clientArgs.ClientCount * clientArgs.MessagePerClient;
             stats.TotalExpectedReceivedMessages = clientArgs.ClientCount * clientArgs.ClientCount * clientArgs.MessagePerClient;
+            stats.MessagePerClient = clientArgs.MessagePerClient;
 
             Stopwatch stopwatch = Stopwatch.StartNew();
 
@@ -48,6 +51,7 @@ namespace EchoClient
             for (int i = 0; i < clientArgs.ClientCount; ++i)
                 clients.Add(CreateNewEchoClient(i, endPoints, stats, clientArgs.MessagePerClient, clientArgs.EchoMessage));
 
+            Logger.Always("Sending message after 3 seconds");
             CancellationTokenSource cts = new CancellationTokenSource();
             Task t = Task.Run(async () =>
             {
@@ -97,7 +101,7 @@ namespace EchoClient
 
                 while(clientStats.TotalMessageRecieved < clientStats.TotalExpectedReceivedMessages)
                 {
-                    await Task.Delay(1000);
+                    await Task.Delay(2000);
                 }
             }
             catch (Exception exception)

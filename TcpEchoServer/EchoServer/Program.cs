@@ -33,7 +33,7 @@ namespace EchoServer
                         while (true)
                         {
                             await Task.Delay(5000);
-                            Logger.Always("ClientCounts: {0}", server.GetActiveClients);
+                            Logger.Always("ActiveClientCounts: {0}", server.GetActiveClients);
                         }
                     });
 

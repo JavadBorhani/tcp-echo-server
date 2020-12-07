@@ -15,10 +15,10 @@ namespace Common.NetStream
             _asyncReaderWriterLock = new AsyncReaderWriterLock();
         }
 
-        public IEnumerable<TValue> GetAll()
+        public List<TValue> GetAll()
         {
             using (_asyncReaderWriterLock.ReaderLock())
-                return _collection.Values;
+                return _collection.Values.ToList();
         }
 
         public List<TKey> GetAllKeys()
@@ -48,7 +48,6 @@ namespace Common.NetStream
             }
         }
 
-      
         public void ClearAll()
         {
             using (_asyncReaderWriterLock.WriterLock())

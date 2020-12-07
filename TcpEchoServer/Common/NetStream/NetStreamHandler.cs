@@ -1,4 +1,5 @@
 ﻿using Common.Utility;
+using Nito.AsyncEx;
 using System;
 using System.Net.Sockets;
 using System.Threading;
@@ -17,7 +18,8 @@ namespace Common.NetStream
 
         private bool _disconnected = false;
         private readonly CancellationTokenSource _cancelSource;
-        private readonly int _clientId; 
+        private readonly int _clientId;
+        private readonly AsyncLock _asyncLock = new AsyncLock();
 
         public NetStreamHandler(TcpClient tcpClient, int clientId)
         {

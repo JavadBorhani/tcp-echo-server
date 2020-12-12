@@ -28,7 +28,7 @@ EchoClient:
 	
 ### How To Build
 
-	* please note that .net core 2.2 should have been installed.
+	* please note that .net 5.0 should have been installed.
 	
 	There are two approaches to build which is described in 
 	the following parts
@@ -51,7 +51,7 @@ EchoClient:
 		
 ### How To Run
 
-	* please note that .net core 2.2 should have been installed.
+	* please note that .net 5.0 should have been installed.
 	
 	There are two batch scripts in "Build" directory located in 
 	"TcpEchoServer" folder, each of them explained below:
@@ -61,7 +61,6 @@ EchoClient:
 		and then create multiple instances of "EchoServer", the ip address 
 		and port number of each echo server instance and backbone 
 		can be changed in batchscript.
-		
 	
 	RunClient.bat:
 		This batch script will start Echo client with the number of 
@@ -69,9 +68,8 @@ EchoClient:
 		each client, the ip address of echo servers should be passsed 
 		in the commandline as well.
 	
-	* with default configuraion	1 instance of backbone and 5 instance of 
-	* echo servers will be started on the local ip address 
-
+	* with default configuraion	1 instance of backbone and 5 instance of echo servers will be started on the local ip address
+	
 ### Commandline Configurations
 
 	Each module has it's own commandline configuraion which is 
@@ -102,7 +100,7 @@ EchoClient:
 
 	Protocol:
 		The message protocol consist of two parts, an int32 as a header
-		whic is mandatory, indicating the size of actual message and 
+		which is mandatory, indicating the size of actual message and 
 		the message iteself which can have a dynamic length.
 		
 	Thoughts:

@@ -68,7 +68,7 @@ EchoClient:
 		each client, the ip address of echo servers should be passsed 
 		in the commandline as well.
 	
-	* with default configuraion	1 instance of backbone and 5 instance of echo servers will be started on the local ip address
+	* with default configuration 1 instance of backbone and 5 instance of echo servers will be started on the local ip address
 	
 ### Commandline Configurations
 

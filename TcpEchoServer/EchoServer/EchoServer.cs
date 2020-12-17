@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace EchoServer
 {
+
     public class EchoServer
     {
         private readonly IPEndPoint _serverIP;
@@ -57,33 +58,6 @@ namespace EchoServer
             {
                 Logger.Error("Accepting client error: {0}", ex.Message);
             }
-        }
-
-        private int GetRandomClientId()
-        {
-            Random random = new Random(Guid.NewGuid().GetHashCode());
-            List<int> keys = _clients.GetAllKeys();
-
-            int randIndex = random.Next(0, keys.Count);
-            int randId = keys[randIndex];
-
-            return randId;
-        }
-
-        private async Task DisconnectClientRandomly(int delayInSeconds)
-        {
-            await Task.Delay(delayInSeconds * 1000);
-            int randomClientId = GetRandomClientId();
-
-            Logger.Info("diconnect client {0} after 3 seconds", randomClientId);
-            DisconnectClientAfterSeconds(randomClientId, 3).SafeFireAndForget();
-        }
-
-        private async Task DisconnectClientAfterSeconds(int clientId, int seconds)
-        {
-            await Task.Delay(seconds * 1000);
-            NetStreamHandler client = _clients.Remove(clientId);
-            client?.Disconnect();
         }
 
         private void OnBackboneMessageReceived(string message)
@@ -171,7 +145,8 @@ namespace EchoServer
             ConnectToBackbone();
             InitializeServer().SafeFireAndForget();
 
-            //DisconnectClientRandomly(delayInSeconds: 10).NoAwait();
+            //to disconnect a client randomly comment the following line 
+            //new DisconnectOneClientRandomly(_clients , 10);
         }
 
         public void Stop()

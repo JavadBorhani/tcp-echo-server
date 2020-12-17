@@ -76,7 +76,7 @@ namespace EchoServer
             int randomClientId = GetRandomClientId();
 
             Logger.Info("diconnect client {0} after 3 seconds", randomClientId);
-            DisconnectClientAfterSeconds(randomClientId, 3).NoAwait();
+            DisconnectClientAfterSeconds(randomClientId, 3).SafeFireAndForget();
         }
 
         private async Task DisconnectClientAfterSeconds(int clientId, int seconds)
@@ -91,7 +91,7 @@ namespace EchoServer
             IEnumerable<NetStreamHandler> clients = _clients.GetAll();
 
             foreach (var client in clients)
-                client.WriteAsync(message).NoAwait();
+                client.WriteAsync(message).SafeFireAndForget();
 
             Logger.Info(message);
         }
@@ -103,7 +103,7 @@ namespace EchoServer
 
         private void OnClientMessageReceived(string message)
         {
-            _backbone.WriteAsync(message).NoAwait();
+            _backbone.WriteAsync(message).SafeFireAndForget();
         }
 
         private void OnClientDisconnect(int clientId)
@@ -149,7 +149,7 @@ namespace EchoServer
                 while (_disconnected == false)
                 {
                     TcpClient newClient = await _server.AcceptTcpClientAsync();
-                    Task.Run(() => Accept(newClient)).NoAwait();
+                    Task.Run(() => Accept(newClient)).SafeFireAndForget();
                 }
             }
             catch (SocketException socketException)
@@ -169,7 +169,7 @@ namespace EchoServer
         public void Start()
         {
             ConnectToBackbone();
-            InitializeServer().NoAwait();
+            InitializeServer().SafeFireAndForget();
 
             //DisconnectClientRandomly(delayInSeconds: 10).NoAwait();
         }

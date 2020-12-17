@@ -23,7 +23,7 @@ namespace Common.Utility
         {
             List<IPEndPoint> ipEndPoints = new List<IPEndPoint>();
 
-            foreach(var ipAddress in multipleIpAddress)
+            foreach (var ipAddress in multipleIpAddress)
             {
                 IPEndPoint endPoint = ParseIPAddress(ipAddress);
                 ipEndPoints.Add(endPoint);
@@ -44,7 +44,17 @@ namespace Common.Utility
         }
 
 
-        public static void NoAwait(this Task task) { }
+        public static async void SafeFireAndForget(this Task task)
+        {
+            try
+            {
+                await task;
+            }
+            catch (Exception exception)
+            {
+                Logger.Error("task executed with the following error: {0} ", exception.Message);
+            }
+        }
 
     }
 }

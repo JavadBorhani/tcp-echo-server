@@ -38,7 +38,7 @@ namespace Backbone
                 while (_disconnected == false)
                 {
                     TcpClient newClient = await _backbone.AcceptTcpClientAsync();
-                    Task.Run(() => Accept(newClient)).NoAwait();
+                    Task.Run(() => Accept(newClient)).SafeFireAndForget();
                 }
             }
             catch (SocketException socketException)
@@ -80,7 +80,7 @@ namespace Backbone
             IEnumerable<NetStreamHandler> clients = _clients.GetAll();
 
             foreach (NetStreamHandler client in clients)
-                client.WriteAsync(message).NoAwait();
+                client.WriteAsync(message).SafeFireAndForget();
         }
 
         private void OnClientDisconnect(int clientId)
@@ -92,7 +92,7 @@ namespace Backbone
 
         public void Start()
         {
-            InitializeServer().NoAwait();
+            InitializeServer().SafeFireAndForget();
         }
 
         public void Stop()

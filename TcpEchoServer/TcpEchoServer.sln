@@ -1,8 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.1300
-MinimumVisualStudioVersion = 10.0.40219.1
+# Visual Studio 16
+VisualStudioVersion = 16.0.29613.14
+MinimumVisualStudioVersion = 15.0.26124.0
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EchoServer", "EchoServer\EchoServer.csproj", "{49466DEB-9009-4312-9729-2F6A62B300D4}"
 	ProjectSection(ProjectDependencies) = postProject
 		{78A32D97-133A-47B3-BFCE-D668CEB95320} = {78A32D97-133A-47B3-BFCE-D668CEB95320}

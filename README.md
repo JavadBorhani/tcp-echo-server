@@ -41,7 +41,7 @@ EchoClient:
 		("Backbone", "EchoClient","EchoServer"). "Build" directory 
 		is located in the "TcpEchoServer" directory
 		
-	VisualStudio 2017:
+	VisualStudio 2019:
 		Open "TcpEchoServer.sln" from TcpEchoServer folder then select
 		"Release" as configuration, then click "Build Solution" from
 		Build menu.

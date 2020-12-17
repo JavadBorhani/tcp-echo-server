@@ -1,5 +1,7 @@
 ### Brief Architecture
 
+NOTE: EXPERIMENTAL IMPLEMENTATION
+
 Intro:
 	This echo server and client implementation consist of three
 	modules each of them is described in the following sentences
@@ -21,10 +23,19 @@ EchoServer:
 	
 EchoClient:
 	This console application will generate multiple echo clients 
-	with the amount of echo request each client should make towards  
+	with the amount of echo request each client should make towards 
 	the connected echo server based on the command line arguments 
 	passed in to application, it can be considered as 'LoadTest' 
 	application for echo servers.
+	
+	
+### Issues
+	1- Half-opened and closed connections 
+	2- Handling the message as events Is less performant  
+	3- Backbone reconnect and buffering the incomming messages
+	4- ConcurrentCollection should be replaced either with more optimized 
+	   version or C# concurrent containers	
+
 	
 ### How To Build
 

@@ -1,6 +1,6 @@
 ### Brief Architecture
 
-NOTE: EXPERIMENTAL IMPLEMENTATION
+NOTE: EXPERIMENTAL IMPLEMENTATION - ONE WEEK CHALLENGE
 
 Intro:
 	This echo server and client implementation consist of three
